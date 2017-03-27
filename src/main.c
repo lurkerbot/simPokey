@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <libconfig.h>
 #include "PoKeysLib.h"
 #include "PoKeysDevices.h"
 #include "config.h"
+#include "device.h"
 
-const int MAX_DEVICES = 16;
+
+
 const char *configFile = "config.cfg";
+
+
 
 int dumpDeviceSummary(sPoKeysNetworkDeviceSummary device)
 {
@@ -30,26 +35,26 @@ void connectToDevice(serialNumber, checkForDevice)
 
 int main()
 {
-    const char *configFile = "config.cfg";
     sPoKeysNetworkDeviceSummary networkDeviceSummary;
-
+    config_setting_t configuredDevices;
+    const char *configFile = "config.cfg";
+    
     initConfiguration(&configuration, configFile);
 
-    // config_setting_t* configuredDevices;
-    // int configDevices = getConfigurationList(configuredDevices, "configuration.devices");
+    //*****
 
-    //  printf("%d\n",(int)configuredDevices->value.list->length);
+    loadConfiguredDevices();
 
+   
+    // int numberOfDevices = PK_EnumerateNetworkDevices(&networkDeviceSummary, 800);
 
-    int numberOfDevices = PK_EnumerateNetworkDevices(&networkDeviceSummary, 800);
+    // printf("Detected: %d devices\n", numberOfDevices);
 
-    printf("Detected: %d devices\n", numberOfDevices);
-
-    for (int i = 0; i < numberOfDevices; i++)
-    {
-        dumpDeviceSummary(networkDeviceSummary);
-        connectToDevice(networkDeviceSummary.SerialNumber, 1);
-    }
+    // for (int i = 0; i < numberOfDevices; i++)
+    // {
+    //     dumpDeviceSummary(networkDeviceSummary);
+    //     connectToDevice(networkDeviceSummary.SerialNumber, 1);
+    // }
 
     return 0;
 }

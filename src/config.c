@@ -4,6 +4,7 @@
 #include <string.h>
 #include "config.h"
 
+
 int configIsLoaded = 0;
 
 int initConfiguration(config_t *config, const char *fileName)
@@ -20,6 +21,7 @@ int initConfiguration(config_t *config, const char *fileName)
     configIsLoaded = 1;
 
     printf("Loaded config: %s (v%s)\n", fileName, getConfigurationValue("version"));
+    printf("Loaded config: %s\n", getConfigurationValue("name"));
 
     return (CONFIG_TRUE);
 }
@@ -35,17 +37,32 @@ void *getConfigurationValue(char *element)
     return 0;
 }
 
-int getConfigurationList(config_setting_t *items, char *element)
-{
-    config_setting_t* list = config_lookup(&configuration, element);
-    int count = config_setting_length(list);
-
-    printf("from list %d\n",list->value.list->length);
-
-    //items = malloc(sizeof(config_setting_t)*count);
-    memcpy(&items, &list, sizeof(sizeof(config_setting_t)*count));
-    printf("from items %d\n",items->value.list->length);
+int loadConfiguredDevices() {
+    config_setting_t* configurationDevices = config_lookup(&configuration, "configuration.devices");
+    int numberOfDevices = config_setting_length(configurationDevices);
 
     
+    for (int i = 0; i < numberOfDevices; i++){
+        const char *name, *serialNumber;
+        int dhcp;
+
+        device_t *device = malloc(sizeof(device_t));
+        config_setting_t *configurationDevice = config_setting_get_elem(configurationDevices, i);
+
+        config_setting_lookup_string(configurationDevice, "name", &name);
+        config_setting_lookup_string(configurationDevice, "serialNumber", &serialNumber);
+        config_setting_lookup_bool(configurationDevice, "dhcp", &dhcp);
+
+        device->name = name;
+        device->serialNumber = serialNumber;
+        device->dhcp = dhcp;
+
+        devices[i] = device;
+        printf("%s - %s - %s \n", devices[i]->name, devices[i]->serialNumber,devices[i]->dhcp ? "DHCP":"Fixed");
+    }
+
+        printf("Loaded %d devices\n", numberOfDevices);
+
+
     return 0;
 }

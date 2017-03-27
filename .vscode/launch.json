@@ -1,12 +1,23 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug",
-            "type": "lldb-mi",
-            "request": "launch",
-            "target": "./src/pokey",
-            "cwd": "${workspaceRoot}"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "type": "gdb",
+      "request": "attach",
+      "name": "Attach to PID",
+      "target": "[PID]",
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "type": "cppdbg",
+       "MIMode": "gdb",
+       "miDebuggerPath": "/usr/local/bin/gdb",
+      "request": "launch",
+      "name": "Launch",
+      "program": "${workspaceRoot}/src/pokey",
+      "args": [],
+      "cwd": "${workspaceRoot}/src"
+    }
+  ]
 }
