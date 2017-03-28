@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libconfig.h>
+#include <zlog.h>
 #include "PoKeysLib.h"
 #include "PoKeysDevices.h"
 #include "config.h"
 #include "device.h"
 
 
-
-const char *configFile = "config.cfg";
-
+const char *configFile = "../config/config.cfg";
+const char *logConfigFile = "../config/zlog.conf";
+zlog_category_t *logHandler;
 
 
 int dumpDeviceSummary(sPoKeysNetworkDeviceSummary device)
@@ -35,9 +36,23 @@ void connectToDevice(serialNumber, checkForDevice)
 
 int main()
 {
+   
+    if (zlog_init(logConfigFile)) {
+		printf("init failed\n");
+		return -1;
+	}
+
+    logHandler = zlog_get_category("simPokey");
+    if (!logHandler) {
+		printf("get cat fail\n");
+		zlog_fini();
+		return -2;
+	}
+
+
     sPoKeysNetworkDeviceSummary networkDeviceSummary;
     config_setting_t configuredDevices;
-    const char *configFile = "config.cfg";
+    
     
     initConfiguration(&configuration, configFile);
 
@@ -55,6 +70,7 @@ int main()
     //     dumpDeviceSummary(networkDeviceSummary);
     //     connectToDevice(networkDeviceSummary.SerialNumber, 1);
     // }
+    zlog_fini();
 
     return 0;
 }
