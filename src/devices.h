@@ -1,7 +1,8 @@
-#ifndef __DEVICE_H
-#define __DEVICE_H
+#ifndef __DEVICES_H
+#define __DEVICES_H
 
 #define MAX_DEVICES 16
+#define MAX_PINS 55
 
 #define UKNOWN_PIN_TYPE -1
 #define DIGITAL_INPUT 0
@@ -17,11 +18,16 @@ typedef struct{
 typedef struct {
     const char* serialNumber;
     const char* name;
-    int   dhcp;
-    device_port_t *ports[];
+    int dhcp;
+    int numberOfPins;
+    device_port_t *pins[MAX_PINS];
 } device_t;
 
 device_t *devices[MAX_DEVICES];
+int activeDevices;
 
+void dumpDevices();
+void dumpDevice(device_t *device);
+int getDeviceBySerialNumber(device_t* device, char *serialNumber);
 
 #endif

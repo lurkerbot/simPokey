@@ -4,9 +4,8 @@
 #include <libconfig.h>
 #include <zlog.h>
 #include "PoKeysLib.h"
-#include "PoKeysDevices.h"
 #include "config.h"
-#include "device.h"
+#include "devices.h"
 
 
 const char *configFile = "../config/config.cfg";
@@ -29,7 +28,6 @@ int dumpDeviceSummary(sPoKeysNetworkDeviceSummary device)
 void connectToDevice(serialNumber, checkForDevice)
 {
     sPoKeysDevice *device = PK_ConnectToDeviceWSerial(serialNumber, checkForDevice);
-
     printf("%s\n", device->DeviceData.DeviceTypeName);
     printf("%s\n", device->DeviceData.BuildDate);
 }
@@ -49,6 +47,9 @@ int main()
 		return -2;
 	}
 
+    zlog_info(logHandler, "---------- STARTING ----------");
+
+
 
     sPoKeysNetworkDeviceSummary networkDeviceSummary;
     config_setting_t configuredDevices;
@@ -57,13 +58,14 @@ int main()
     initConfiguration(&configuration, configFile);
 
     //*****
-
+    
     loadConfiguredDevices();
 
-   
-    // int numberOfDevices = PK_EnumerateNetworkDevices(&networkDeviceSummary, 800);
 
-    // printf("Detected: %d devices\n", numberOfDevices);
+    zlog_info(logHandler, "Starting network device enumeration...");
+    int numberOfDevices = PK_EnumerateNetworkDevices(&networkDeviceSummary, 800);
+
+    zlog_info(logHandler,"Detected: %d devices\n", numberOfDevices);
 
     // for (int i = 0; i < numberOfDevices; i++)
     // {

@@ -2,10 +2,9 @@
 #define __CONFIG_H
 
 #include <libconfig.h>
-#include "device.h"
+
 
 config_t configuration;
-
 
 int initConfiguration(config_t *config, const char *fileName);
 void* getConfigurationValue(char* element);

@@ -4,11 +4,10 @@
 #include <zlog.h>
 #include <string.h>
 #include "config.h"
+#include "devices.h"
 
 //forward decl
 void *logHandler;
-
-
 
 int configIsLoaded = 0;
 
@@ -43,7 +42,7 @@ void *getConfigurationValue(char *element)
 }
 
 
-int loadPorts(config_setting_t *configurationDevice){
+int loadPorts(config_setting_t *configurationDevice, device_t *device){
     int numberOfPorts;
     config_setting_t *devicePorts = config_setting_get_member(configurationDevice, "ports");
 
@@ -54,47 +53,54 @@ int loadPorts(config_setting_t *configurationDevice){
     }
    
     numberOfPorts = config_setting_length(devicePorts);
-    zlog_info(logHandler," - %d ports configured", numberOfPorts);
-
 
     for (int i = 0; i < numberOfPorts; i++){
+
+        int pin, defaultValue=0,type=0;
+        int ret;
+        const char *name, *tempType;
 
         device_port_t *port = malloc(sizeof(device_port_t));
         memset(port, 0, sizeof(device_port_t));
 
         config_setting_t *configurationPort = config_setting_get_elem(devicePorts, i);
 
-        zlog_info(logHandler, "reading port index %d", i);
-        int pin, defaultValue=0,type=0;
-        const char  *name,*tempType;
+        ret = config_setting_lookup_int(configurationPort, "pin", &pin);
 
-        config_setting_lookup_int(configurationPort, "pin", &pin);
-        config_setting_lookup_string(configurationPort, "name", &name);
-        config_setting_lookup_int(configurationPort, "default", &defaultValue);
-        config_setting_lookup_string(configurationPort, "type", &tempType);
+        if (ret == CONFIG_FALSE){
+            zlog_info(logHandler, "No pin configuration. Skipping...");
+            continue;
+        }
 
-        printf("%s\n", tempType);
-        if (strcmp("DIGITAL_INPUT",(char*)tempType)==0)
-        {
-            printf("a\n");
-            type = 0;
+        ret = config_setting_lookup_string(configurationPort, "type", &tempType);
+        if (ret == CONFIG_FALSE){
+            zlog_info(logHandler, "No pin direction specified. Skipping...");
+            continue;
         }
-        else if (strcmp("DIGITAL_OUTPUT",(char*)tempType)==0){
-            printf("b\n");
-            type = 1; 
-        }
-        else {
+
+        ret = config_setting_lookup_string(configurationPort, "name", &name);
+         if (ret == CONFIG_FALSE){
+             name = "Undefined";
+         }
+
+         config_setting_lookup_int(configurationPort, "default", &defaultValue);
+         
+         if (strcmp("DIGITAL_INPUT", (char *)tempType) == 0)
+             type = DIGITAL_INPUT;
+        else if (strcmp("DIGITAL_OUTPUT",(char*)tempType)==0)
+            type = DIGITAL_OUTPUT;
+        else 
             type = -1;
-        }
-
+    
         port->name = name;
         port->pin = pin;
         port->defaultValue = defaultValue;
         port->type = type;
-        
+
+        device->pins[i] = port;
+        device->numberOfPins++;
 
         zlog_info(logHandler, "%s,%d,%d,%d (name,pin,default,type)", port->name, port->pin, port->defaultValue, port->type);
-        free(port);
     }
 
     return 0;
@@ -120,15 +126,14 @@ int loadConfiguredDevices() {
         device->serialNumber = serialNumber;
         device->dhcp = dhcp;
 
+        zlog_info(logHandler,"%s (#%s)", device->name, device->serialNumber);
+        loadPorts(configurationDevice,device);
         devices[i] = device;
-        zlog_info(logHandler,"%s - %s - %s", devices[i]->name, devices[i]->serialNumber,devices[i]->dhcp ? "DHCP":"Fixed");
-
-        loadPorts(configurationDevice);
     }
 
         zlog_info(logHandler,"Loaded %d devices", numberOfDevices);
+        activeDevices = numberOfDevices;
 
-
-    return 0;
+        return 0;
 }
 
