@@ -2,3 +2,4 @@
 *.a
 logs/*
 src/pokey
+src/libPoKeys.so

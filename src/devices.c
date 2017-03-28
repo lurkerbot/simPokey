@@ -39,13 +39,14 @@ void dumpDevices() {
     for (int i = 0; i < activeDevices; i++){
         dumpDevice(devices[i]);
     }
-    printf("\n");
 }
 
 int getDeviceBySerialNumber(device_t* device, char* serialNumber){
+  
     for (int i = 0; i < activeDevices; i++)
     {
         device_t *searchDevice = devices[i];
+          
         if (strcmp(serialNumber, searchDevice->serialNumber)==0){
             memcpy(device, searchDevice, sizeof(device_t));
             return 1;
