@@ -1,8 +1,11 @@
 #ifndef __DEVICES_H
 #define __DEVICES_H
 
+#include "PoKeysLib.h"
+
 #define MAX_DEVICES 16
 #define MAX_PINS 55
+#define MAX_DEVICE_NAME_LENGTH 10
 
 #define UKNOWN_PIN_TYPE -1
 #define DIGITAL_INPUT 0
@@ -22,6 +25,7 @@ typedef struct {
     const char* name;
     int dhcp;
     int numberOfPins;
+    sPoKeysDevice* pokey;
     device_port_t *pins[MAX_PINS];
 } device_t;
 
