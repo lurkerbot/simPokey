@@ -61,6 +61,7 @@ int main()
     
     loadConfiguredDevices();
 
+    dumpDevices();
 
     zlog_info(logHandler, "Starting network device enumeration...");
     int numberOfDevices = PK_EnumerateNetworkDevices(&networkDeviceSummary, 800);

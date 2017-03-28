@@ -7,6 +7,8 @@
 #define UKNOWN_PIN_TYPE -1
 #define DIGITAL_INPUT 0
 #define DIGITAL_OUTPUT 1
+#define ANALOG_INPUT 2
+#define ANALOG_OUTPUT 3
 
 typedef struct{
     const char* name;

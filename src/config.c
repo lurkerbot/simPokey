@@ -100,8 +100,10 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device){
         device->pins[i] = port;
         device->numberOfPins++;
 
-        zlog_info(logHandler, "%s,%d,%d,%d (name,pin,default,type)", port->name, port->pin, port->defaultValue, port->type);
+        //zlog_info(logHandler, "%s,%d,%d,%d (name,pin,default,type)", port->name, port->pin, port->defaultValue, port->type);
     }
+
+    zlog_info(logHandler, " - Loaded %d ports", numberOfPorts);
 
     return 0;
 }
@@ -131,7 +133,7 @@ int loadConfiguredDevices() {
         devices[i] = device;
     }
 
-        zlog_info(logHandler,"Loaded %d devices", numberOfDevices);
+        zlog_info(logHandler,"Completed loading %d devices", numberOfDevices);
         activeDevices = numberOfDevices;
 
         return 0;
