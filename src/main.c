@@ -36,7 +36,7 @@ int main()
 {
    
     if (zlog_init(logConfigFile)) {
-		printf("init failed\n");
+		printf("zlog init failed\n");
 		return -1;
 	}
 

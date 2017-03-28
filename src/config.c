@@ -89,6 +89,10 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device){
              type = DIGITAL_INPUT;
         else if (strcmp("DIGITAL_OUTPUT",(char*)tempType)==0)
             type = DIGITAL_OUTPUT;
+        else if (strcmp("ANALOG_OUTPUT",(char*)tempType)==0)
+            type = ANALOG_OUTPUT;
+        else if (strcmp("ANALOG_INPUT",(char*)tempType)==0)
+            type = ANALOG_INPUT;
         else 
             type = -1;
     
@@ -99,8 +103,6 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device){
 
         device->pins[i] = port;
         device->numberOfPins++;
-
-        //zlog_info(logHandler, "%s,%d,%d,%d (name,pin,default,type)", port->name, port->pin, port->defaultValue, port->type);
     }
 
     zlog_info(logHandler, " - Loaded %d ports", numberOfPorts);

@@ -23,15 +23,14 @@ char* getTypeString(int type){
 }
 
 void dumpDevice(device_t *device){
-    printf("Device Name: %s (#%s)\n",device->name,device->serialNumber);
+    printf("\nDevice Name: %s (#%s)\n",device->name,device->serialNumber);
     printf("%9s %16.16s %9s %9s %9s \n", "index","name", "pin", "type", "default");
     printf("%9s %16.16s %9s %9s %9s \n", "-----","----", "---", "----", "-------");
 
-        for (int y = 0; y < device->numberOfPins; y++){
-            device_port_t *port = device->pins[y];
-            printf("%9i %16.16s %9d %9s %9d \n", y,port->name, port->pin, getTypeString(port->type), port->defaultValue);
-        }
-        printf("\n");
+    for (int y = 0; y < device->numberOfPins; y++){
+        device_port_t *port = device->pins[y];
+        printf("%9i %16.16s %9d %9s %9d \n", y,port->name, port->pin, getTypeString(port->type), port->defaultValue);
+    }
 }
 
 void dumpDevices() {
@@ -39,8 +38,8 @@ void dumpDevices() {
 
     for (int i = 0; i < activeDevices; i++){
         dumpDevice(devices[i]);
-
     }
+    printf("\n");
 }
 
 int getDeviceBySerialNumber(device_t* device, char* serialNumber){
