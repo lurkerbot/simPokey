@@ -66,7 +66,8 @@ int main()
 
     for (int i = 0; i < numberOfDevices; i++)
     {
-        device_t device;
+
+        device_t *device = malloc(sizeof(device_t));
         char serialNumberString[128];
 
         sPoKeysNetworkDeviceSummary networkDevice = networkDeviceSummary[i];
@@ -74,33 +75,35 @@ int main()
         // convert networkDevice->SerialNumber integer into a string
         snprintf(serialNumberString, 128, "%d", (unsigned int)networkDevice.SerialNumber);
 
-        if (getDeviceBySerialNumber(&device, (void *)&serialNumberString))
+        if (getDeviceBySerialNumber(device, (void *)&serialNumberString))
         {
-            sPoKeysDevice *pokey = malloc(sizeof(sPoKeysDevice));
-            int ret = connectToDevice(&networkDevice, pokey);
+            // sPoKeysDevice *pokey = malloc(sizeof(sPoKeysDevice));
+            device->pokey = (sPoKeysDevice *)malloc(sizeof(sPoKeysDevice));
+
+            int ret = connectToDevice(&networkDevice, device->pokey);
             if (ret)
             {
-                
-                device.pokey = pokey;
+                device->hasPokey = 1;
 
-                if (strncmp((char*)device.pokey->DeviceData.DeviceName, device.name,MAX_DEVICE_NAME_LENGTH)!=0)
+                /** check the name on the pokey and update **/
+                if (strncmp((char *)device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH) != 0)
                 {
-                    memcpy(device.pokey->DeviceData.DeviceName, device.name, MAX_DEVICE_NAME_LENGTH);
-                    zlog_info(logHandler, " - Setting name %s", pokey->DeviceData.DeviceName);
-                    int ret = PK_DeviceNameSet(device.pokey);
+                    memcpy(device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH);
+                    int ret = PK_DeviceNameSet(device->pokey);
 
-                    if (ret == PK_ERR_NOT_CONNECTED)
+                    if (ret != PK_OK)
                     {
-                        printf("%s", "not connected");
+                        printf("PK_DeviceNameSet: Err %d\n", ret);
+                        return -1;
                     }
-                    if (ret == PK_ERR_TRANSFER)
-                    {
-                        printf("%s", "transfer error");
-                    }
+
+                    zlog_info(logHandler, " - Reset device name %s", device->name);
                 }
+                devices[i] = device;
             }
         }
     }
+
     dumpDevices();
     zlog_fini();
 

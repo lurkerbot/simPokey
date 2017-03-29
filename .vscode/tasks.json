@@ -4,6 +4,6 @@
     "version": "0.1.0",
     "command": "make",
     "isShellCommand": true,
-    "args": ["-f","Makefile"],
+    "args": ["-f","Makefile", "all"],
     "showOutput": "always"
 }
