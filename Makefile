@@ -3,7 +3,7 @@ CFLAGS = -I .
 CDFLAGS = -fPIC -fPIC
 DEBUG = -g
 LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -lconfig -lzlog -lpthread
-SOURCES = ./src/main.c ./src/config.c ./src/devices.c
+SOURCES = ./src/main.c ./src/config.c ./src/devices.c ./src/encoder/encoder.c
 OBJECTS = $(SOURCES:.c=.o)
 
 pokey: $(OBJECTS)

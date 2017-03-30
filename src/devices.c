@@ -4,6 +4,7 @@
 #include <zlog.h>
 #include <string.h>
 #include "devices.h"
+#include "encoder/encoder.h"
 
 //forward decl
 void *logHandler;
@@ -74,8 +75,10 @@ void dumpDevice(device_t *device)
         printf("PWM: %d/%dMhz ", device->pokey->info.iPWMCount, (device->pokey->info.PWMinternalFrequency) / 1000000);
         printf("Encoders: %d (%db/%df/%duf)\n\n", device->pokey->info.iEncodersCount, device->pokey->info.iBasicEncoderCount, device->pokey->info.iFastEncoders, device->pokey->info.iUltraFastEncoders);
 
+
+        dumpEncoders(device->pokey);
         PK_PinConfigurationGet(device->pokey);
-        PK_EncoderConfigurationGet(device->pokey);
+        return;
         printf("%9s  %9s %9s %9s \n", "pin",  "Use", "type", "default");
         printf("%9s %9s %9s %9s \n", "-----",  "---", "----", "-------");
 
