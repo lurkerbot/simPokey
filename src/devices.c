@@ -3,53 +3,32 @@
 #include <libconfig.h>
 #include <zlog.h>
 #include <string.h>
-#include "devices.h"
 #include "encoder/encoder.h"
+#include "pin/pin.h"
+#include "devices.h"
+
 
 //forward decl
 void *logHandler;
 
-char *getTypeString(int type)
+int syncDeviceName(device_t *device)
 {
-    if (type == DIGITAL_INPUT)
-        return "DIN";
-    if (type == DIGITAL_OUTPUT)
-        return "DOUT";
-    if (type == ANALOG_INPUT)
-        return "AIN";
-    if (type == ENCODER)
-        return "ENC";
-    if (type == FAST_ENCODER)
-        return "FENC";
-    if (type == UFAST_ENCODER)
-        return "UFENC";
-    else
-        return "UNKNOWN";
-}
+    if (strncmp((char *)device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH) != 0)
+    {
 
+        memcpy(device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH);
+        int ret = PK_DeviceNameSet(device->pokey);
 
-char *getPinFunction(int pinFunction)
-{
-    if (pinFunction == PK_PinCap_pinRestricted)
-        return "Not_Used";
-    if (pinFunction == PK_PinCap_reserved)
-        return "Reserved";
-    if (pinFunction == PK_PinCap_digitalInput)
-        return "DIN";
-    if (pinFunction == PK_PinCap_digitalOutput)
-        return "DOUT";
-    if (pinFunction == PK_PinCap_analogInput)
-        return "AIN";
-    if (pinFunction == PK_PinCap_analogOutput)
-        return "AOUT";
-    if (pinFunction == PK_PinCap_triggeredInput)
-        return "TRG_IN";
-    if (pinFunction == PK_PinCap_digitalCounter)
-        return "CNT";
-    if (pinFunction == PK_PinCap_invertPin)
-        return "INV";
-    else
-        return "??";
+        if (ret != PK_OK)
+        {
+            printf("PK_DeviceNameSet: Err %d\n", ret);
+            return -1;
+        }
+
+        zlog_info(logHandler, " - Reset device name %s", device->name);
+    }
+
+    return 1;
 }
 
 void dumpDevice(device_t *device)
@@ -58,7 +37,6 @@ void dumpDevice(device_t *device)
 
     if (device->hasPokey)
     {
-      
 
         printf("Device Type: %s ", device->pokey->DeviceData.DeviceTypeName);
         printf("Firmware: v%d.%d.%d ", (device->pokey->DeviceData.FirmwareVersionMajor >> 4) + 1,
@@ -73,27 +51,23 @@ void dumpDevice(device_t *device)
         printf("Pins: %d ", device->pokey->info.iPinCount);
         printf("Analog: %d ", device->pokey->info.iAnalogInputs);
         printf("PWM: %d/%dMhz ", device->pokey->info.iPWMCount, (device->pokey->info.PWMinternalFrequency) / 1000000);
-        printf("Encoders: %d (%db/%df/%duf)\n\n", device->pokey->info.iEncodersCount, device->pokey->info.iBasicEncoderCount, device->pokey->info.iFastEncoders, device->pokey->info.iUltraFastEncoders);
+        printf("Encoders: %d (%db/%df/%duf)\n\n", device->pokey->info.iEncodersCount,
+               device->pokey->info.iBasicEncoderCount,
+               device->pokey->info.iFastEncoders,
+               device->pokey->info.iUltraFastEncoders);
 
-
-        dumpEncoders(device->pokey);
+        // dumpEncoders(device->pokey);
         PK_PinConfigurationGet(device->pokey);
-        return;
-        printf("%9s  %9s %9s %9s \n", "pin",  "Use", "type", "default");
-        printf("%9s %9s %9s %9s \n", "-----",  "---", "----", "-------");
 
-        
-        for(int i=0; i<device->pokey->info.iEncodersCount-1;i++){
-            printf("%d\n",(int)device->pokey->Encoders[i].reserved[1]);
-            printf("%d\n",device->pokey->Encoders[i].channelBpin);
-        }
+        printf("%9s  %9s %9s %9s \n", "pin", "Use", "type", "default");
+        printf("%9s %9s %9s %9s \n", "-----", "---", "----", "-------");
 
-        for (int i = 0; i < device->pokey->info.iPinCount- 1; i++)
+        for (int i = 0; i < device->pokey->info.iPinCount - 1; i++)
         {
-                if (device->pokey->Pins[i].PinFunction==PK_PinCap_pinRestricted)
-                    continue;
+            if (device->pokey->Pins[i].PinFunction == PK_PinCap_pinRestricted)
+                continue;
 
-            printf("%9d %9s\n", i + 1,  getPinFunction(device->pokey->Pins[i].PinFunction));
+            printf("%9d %9s\n", i + 1, (char *)getPinFunction(device->pokey->Pins[i].PinFunction));
         }
 
         printf("\n");
@@ -102,10 +76,13 @@ void dumpDevice(device_t *device)
     printf("%9s %16.16s %9s %9s %9s \n", "index", "name", "pin", "type", "default");
     printf("%9s %16.16s %9s %9s %9s \n", "-----", "----", "---", "----", "-------");
 
-    for (int y = 0; y < device->numberOfPins ; y++)
+    for (int y = 0; y < device->numberOfPins; y++)
     {
         device_port_t *port = device->pins[y];
-        printf("%9i %16.16s %9d %9s %9d \n", y, port->name, port->pin, getTypeString(port->type), port->defaultValue);
+        printf("%9i %16.16s %9d %9s %9d \n", y, port->name,
+               port->pin,
+               (char *)getPinTypeString(port->type),
+               port->defaultValue);
     }
 }
 

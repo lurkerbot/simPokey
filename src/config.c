@@ -5,6 +5,7 @@
 #include <string.h>
 #include "config.h"
 #include "devices.h"
+#include "pin/pin.h"
 
 //forward decl
 void *logHandler;
@@ -54,7 +55,6 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
 
     numberOfPorts = config_setting_length(devicePorts);
 
-
     for (int i = 0; i < numberOfPorts; i++)
     {
 
@@ -76,7 +76,6 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
         }
 
         ret = config_setting_lookup_string(configurationPort, "type", &tempType);
-        printf("%s\n",tempType);
         if (ret == CONFIG_FALSE)
         {
             zlog_info(logHandler, "No pin direction specified. Skipping...");
@@ -103,11 +102,18 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
             type = FAST_ENCODER;
         else if (strcmp("UFAST_ENCODER", (char *)tempType) == 0)
             type = UFAST_ENCODER;
+        else if (strcmp("PWM", (char *)tempType) == 0)
+            type = PWM;
+        else if (strcmp("TRIGGER", (char *)tempType) == 0)
+            type = TRIGGER;
+        else if (strcmp("COUNTER", (char *)tempType) == 0)
+            type = COUNTER;
         else
             type = UKNOWN_PIN_TYPE;
 
         port->name = name;
         port->pin = pin;
+        port->valid = 0;
         port->defaultValue = defaultValue;
         port->type = type;
 

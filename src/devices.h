@@ -7,19 +7,12 @@
 #define MAX_PINS 55
 #define MAX_DEVICE_NAME_LENGTH 10
 
-#define UKNOWN_PIN_TYPE 0
-#define DIGITAL_INPUT 1
-#define DIGITAL_OUTPUT 2
-#define ANALOG_INPUT 3
-#define ENCODER 4
-#define FAST_ENCODER 5
-#define UFAST_ENCODER 6
-
 typedef struct{
     const char* name;
     int pin;
     int type;
     int defaultValue;
+    int valid;
 } device_port_t;
 
 typedef struct {
@@ -39,5 +32,7 @@ int activeDevices;
 void dumpDevices();
 void dumpDevice(device_t *device);
 int getDeviceBySerialNumber(device_t* device, char *serialNumber);
+int syncDeviceName(device_t *device);
+
 
 #endif

@@ -3,9 +3,11 @@
 #include <string.h>
 #include <libconfig.h>
 #include <zlog.h>
+
 #include "PoKeysLib.h"
-#include "config.h"
 #include "devices.h"
+#include "config.h"
+#include "pin/pin.h"
 
 const char *configFile = "../config/config.cfg";
 const char *logConfigFile = "../config/zlog.conf";
@@ -77,34 +79,20 @@ int main()
 
         if (getDeviceBySerialNumber(device, (void *)&serialNumberString))
         {
-            // sPoKeysDevice *pokey = malloc(sizeof(sPoKeysDevice));
-            device->pokey = (sPoKeysDevice *)malloc(sizeof(sPoKeysDevice));
-
+            device->pokey = malloc(sizeof(sPoKeysDevice));
             int ret = connectToDevice(&networkDevice, device->pokey);
             if (ret)
             {
                 device->hasPokey = 1;
-
                 /** check the name on the pokey and update **/
-                if (strncmp((char *)device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH) != 0)
-                {
-                    memcpy(device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH);
-                    int ret = PK_DeviceNameSet(device->pokey);
-
-                    if (ret != PK_OK)
-                    {
-                        printf("PK_DeviceNameSet: Err %d\n", ret);
-                        return -1;
-                    }
-
-                    zlog_info(logHandler, " - Reset device name %s", device->name);
-                }
+                syncDeviceName(device);
+                checkValidPinConfiguration(device,1);
                 devices[i] = device;
             }
         }
     }
 
-    dumpDevices();
+//    dumpDevices();
     zlog_fini();
 
     return 0;
