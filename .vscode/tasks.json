@@ -1,9 +1,14 @@
-{
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
+{   
     "version": "0.1.0",
-    "command": "make",
-    "isShellCommand": true,
-    "args": ["-f","Makefile", "all"],
-    "showOutput": "always"
+    "tasks": [
+        {
+            "taskName": "build-all",
+            "command": "make",
+            "args": ["-f","Makefile", "all"],
+            "isShellCommand": true,
+            "showOutput": "always",
+            "isBuildCommand": true
+        }
+    ]
+
 }

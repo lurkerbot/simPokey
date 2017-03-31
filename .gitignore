@@ -3,3 +3,5 @@
 logs/*
 src/pokey
 src/libPoKeys.so
+src/pokey.dSYM/
+src/pokey.dwarf
