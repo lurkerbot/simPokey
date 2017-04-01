@@ -4,6 +4,10 @@
 #include "../PoKeysLib.h"
 #include "../devices.h"
 
+#define PIN_FREE        0
+#define PIN_EXISTS      1
+
+
 #define UKNOWN_PIN_TYPE 0
 #define DIGITAL_INPUT 1
 #define DIGITAL_OUTPUT 2

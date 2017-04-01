@@ -42,6 +42,18 @@ void *getConfigurationValue(char *element)
     return 0;
 }
 
+int checkPinExistsInConfig(device_t *device, int pin)
+{
+    for (int i = 0; i < device->numberOfPins; i++)
+    {
+        if (pin == device->pins[i]->pin)
+        {
+            return PIN_EXISTS;
+        }
+    }
+    return PIN_FREE;
+}
+
 int loadPorts(config_setting_t *configurationDevice, device_t *device)
 {
     int numberOfPorts;
@@ -54,6 +66,7 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
     }
 
     numberOfPorts = config_setting_length(devicePorts);
+    int pinIndex = 0;
 
     for (int i = 0; i < numberOfPorts; i++)
     {
@@ -62,10 +75,9 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
         int ret;
         const char *name, *tempType;
 
+        config_setting_t *configurationPort = config_setting_get_elem(devicePorts, i);
         device_port_t *port = malloc(sizeof(device_port_t));
         memset(port, 0, sizeof(device_port_t));
-
-        config_setting_t *configurationPort = config_setting_get_elem(devicePorts, i);
 
         ret = config_setting_lookup_int(configurationPort, "pin", &pin);
 
@@ -74,6 +86,13 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
             zlog_info(logHandler, "No pin configuration. Skipping...");
             continue;
         }
+
+        if (checkPinExistsInConfig(device, pin)==PIN_EXISTS)
+        {
+            zlog_info(logHandler, "  - Duplicate pin %d. Skipping", pin);
+            continue;
+        }
+    
 
         ret = config_setting_lookup_string(configurationPort, "type", &tempType);
         if (ret == CONFIG_FALSE)
@@ -117,11 +136,12 @@ int loadPorts(config_setting_t *configurationDevice, device_t *device)
         port->defaultValue = defaultValue;
         port->type = type;
 
-        device->pins[i] = port;
+        device->pins[pinIndex++] = port;
         device->numberOfPins++;
+                
     }
 
-    zlog_info(logHandler, " - Loaded %d ports", numberOfPorts);
+    zlog_info(logHandler, " - Loaded %d/%d ports", device->numberOfPins,numberOfPorts);
 
     return 0;
 }
