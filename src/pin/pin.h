@@ -2,7 +2,7 @@
 #define __PIN_H
 
 #include "../PoKeysLib.h"
-#include "../devices.h"
+#include "../device/pokey/pokey.h"
 
 #define PIN_FREE        0
 #define PIN_EXISTS      1

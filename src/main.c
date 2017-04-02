@@ -5,8 +5,8 @@
 #include <zlog.h>
 
 #include "PoKeysLib.h"
-#include "devices.h"
-#include "config.h"
+#include "device/pokey/pokey.h"
+#include "config/config.h"
 #include "pin/pin.h"
 
 const char *configFile = "../config/config.cfg";

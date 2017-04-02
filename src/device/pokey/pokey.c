@@ -3,9 +3,9 @@
 #include <libconfig.h>
 #include <zlog.h>
 #include <string.h>
-#include "encoder/encoder.h"
-#include "pin/pin.h"
-#include "devices.h"
+#include "../../encoder/encoder.h"
+#include "../../pin/pin.h"
+#include "pokey.h"
 
 
 //forward decl

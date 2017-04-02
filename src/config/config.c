@@ -4,8 +4,8 @@
 #include <zlog.h>
 #include <string.h>
 #include "config.h"
-#include "devices.h"
-#include "pin/pin.h"
+#include "../device/pokey/pokey.h"
+#include "../pin/pin.h"
 
 //forward decl
 void *logHandler;

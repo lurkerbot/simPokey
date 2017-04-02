@@ -1,7 +1,7 @@
 #ifndef __DEVICES_H
 #define __DEVICES_H
 
-#include "PoKeysLib.h"
+#include "../../PoKeysLib.h"
 
 #define MAX_DEVICES 16
 #define MAX_PINS 55
