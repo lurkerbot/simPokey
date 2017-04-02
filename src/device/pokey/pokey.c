@@ -3,10 +3,10 @@
 #include <libconfig.h>
 #include <zlog.h>
 #include <string.h>
+#include <uv.h>
 #include "../../encoder/encoder.h"
 #include "../../pin/pin.h"
 #include "pokey.h"
-
 
 //forward decl
 void *logHandler;
@@ -15,7 +15,6 @@ int syncDeviceName(device_t *device)
 {
     if (strncmp((char *)device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH) != 0)
     {
-
         memcpy(device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH);
         int ret = PK_DeviceNameSet(device->pokey);
 
@@ -38,7 +37,7 @@ void dumpDevice(device_t *device)
     if (device->hasPokey)
     {
 
-        printf("Device Type: %s ", device->pokey->DeviceData.DeviceTypeName);
+        printf("Device Type: %s(%d) ", device->pokey->DeviceData.DeviceTypeName, device->pokey->DeviceData.UserID);
         printf("Firmware: v%d.%d.%d ", (device->pokey->DeviceData.FirmwareVersionMajor >> 4) + 1,
                device->pokey->DeviceData.FirmwareVersionMajor & 0x0F,
                device->pokey->DeviceData.FirmwareVersionMinor);
@@ -57,20 +56,18 @@ void dumpDevice(device_t *device)
                device->pokey->info.iUltraFastEncoders);
 
         // dumpEncoders(device->pokey);
-        PK_PinConfigurationGet(device->pokey);
+        // PK_PinConfigurationGet(device->pokey);
+        // printf("Current configuration on Pokey\n\n");
+        // printf("%9s  %9s %9s %9s \n", "pin", "Use", "type", "default");
+        // printf("%9s %9s %9s %9s \n", "-----", "---", "----", "-------");
 
-        printf("%9s  %9s %9s %9s \n", "pin", "Use", "type", "default");
-        printf("%9s %9s %9s %9s \n", "-----", "---", "----", "-------");
+        // for (int i = 0; i < device->pokey->info.iPinCount - 1; i++)
+        // {
+        //     if (device->pokey->Pins[i].PinFunction == PK_PinCap_pinRestricted)
+        //         continue;
 
-        for (int i = 0; i < device->pokey->info.iPinCount - 1; i++)
-        {
-            if (device->pokey->Pins[i].PinFunction == PK_PinCap_pinRestricted)
-                continue;
-
-            printf("%9d %9s\n", i + 1, (char *)getPinFunction(device->pokey->Pins[i].PinFunction));
-        }
-
-        printf("\n");
+        //     printf("%9d %9s\n", i + 1, (char *)getPinFunction(device->pokey->Pins[i].PinFunction));
+        // }
     }
 
     printf("%9s %16.16s %9s %9s %9s \n", "index", "name", "pin", "type", "default");
@@ -109,4 +106,65 @@ int getDeviceBySerialNumber(device_t *device, char *serialNumber)
         }
     }
     return 0;
+}
+
+int applyConfiguration(device_t *device)
+{
+
+    applyPinConfigurationToDevice(device);
+
+    return 0;
+}
+
+void timer_cb1(uv_timer_t *timer, int status)
+{
+    device_t *device = timer->data;
+    sPoKeysDevice *pokey = device->pokey;
+
+    /** read in all the digital IO from the pokey **/
+    int ret = PK_DigitalIOGet(pokey);
+
+    if (ret == PK_OK)
+    {
+
+        /** iterate over the pins **/
+        for (int i = 0; i < device->numberOfPins; i++)
+        {
+            int devicePin = device->pins[i]->pin-1;
+            // printf("%d checking %s %d\n", i,device->pins[i]->name, devicePin);
+
+            if(device->pins[i]->type != DIGITAL_INPUT){
+                continue;
+            }
+
+            if (device->pins[i]->value != pokey->Pins[devicePin].DigitalValueGet)
+            {
+                device->pins[i]->previousValue = device->pins[i]->value;
+                device->pins[i]->value = pokey->Pins[devicePin].DigitalValueGet;
+                zlog_info(logHandler, "%s - %s - %s --> %s", device->name,
+                          device->pins[i]->name,
+                          device->pins[i]->previousValue == 1 ? "On" : "Off",
+                          device->pins[i]->value == 1 ? "On" : "Off");
+            }
+        }
+    }
+}
+
+int startDeviceLoop(device_t *device)
+{
+
+    dumpDevice(device);
+    uv_timer_t timer1;
+    uint64_t freq = DEVICE_READ_INTERVAL;
+
+    device->loop = uv_loop_new();
+    timer1.data = device;
+    uv_timer_init(device->loop, &timer1);
+
+    int ret = uv_timer_start(&timer1, (uv_timer_cb)&timer_cb1, 100, freq);
+
+    if (ret == 0)
+        uv_run(device->loop, UV_RUN_DEFAULT);
+
+    return 1;
 }

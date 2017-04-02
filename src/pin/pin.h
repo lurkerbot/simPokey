@@ -7,20 +7,28 @@
 #define PIN_FREE        0
 #define PIN_EXISTS      1
 
+#define PIN_INVALID     0
+#define PIN_VALID       1
+
+#define NO_PINS         1
 
 #define UKNOWN_PIN_TYPE 0
 #define DIGITAL_INPUT 1
 #define DIGITAL_OUTPUT 2
 #define ANALOG_INPUT 3
-#define ENCODER 4
-#define FAST_ENCODER 5
-#define UFAST_ENCODER 6
-#define PWM 7
-#define COUNTER 8
-#define TRIGGER 9       //NOT CURRENTLY SUPPORTED
+#define ANALOG_OUTPUT 4
+#define ENCODER 5
+#define FAST_ENCODER 6
+#define UFAST_ENCODER 7
+#define PWM 8
+#define COUNTER 9
+#define TRIGGER 10
 
 char *getPinTypeString(int type);
 char *getPinFunction(int pinFunction);
 int checkValidPinConfiguration(device_t* device, int pin);
+int loadPinConfiguration(config_setting_t* configuredPorts,device_t *device);
+int checkPinExistsInConfig(device_t *device, int pin);
+int applyPinConfigurationToDevice(device_t *device);
 
 #endif

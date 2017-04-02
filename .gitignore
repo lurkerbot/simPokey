@@ -1,7 +1,6 @@
 *.o
 *.a
 logs/*
-src/pokey
+bin/pokey
+bin/pokey.dSYM/
 src/libPoKeys.so
-src/pokey.dSYM/
-src/pokey.dwarf

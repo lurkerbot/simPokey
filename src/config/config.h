@@ -3,7 +3,6 @@
 
 #include <libconfig.h>
 
-
 config_t configuration;
 
 int initConfiguration(config_t *config, const char *fileName);

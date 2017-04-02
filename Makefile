@@ -5,7 +5,7 @@ DEBUG = -g3 -O0
 CFLAGS = -I . $(DEBUG)
 CDFLAGS = -arch x86_64
 
-LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -lconfig -lzlog -lpthread
+LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -L/usr/local/include -lconfig -luv -lzlog -lpthread
 SOURCES = ./src/main.c \
 		  ./src/config/config.c \
 		  ./src/device/pokey/pokey.c \
@@ -16,8 +16,8 @@ OBJECTS = $(SOURCES:.c=.o)
 
 
 pokey: $(OBJECTS)
-	$(CC) $(OBJECTS) -o src/pokey $(CFLAGS) $(LDFLAGS) $(CDFLAGS)
-	dsymutil ./src/pokey
+	$(CC) $(OBJECTS) -o bin/pokey $(CFLAGS) $(LDFLAGS) $(CDFLAGS)
+	dsymutil ./bin/pokey
 
 clean:
 	-rm -rf src/pokey.dSYM/
@@ -33,3 +33,4 @@ all: clean pokey
 install: clean all
 	mkdir -p logs
 	touch logs/log
+	brew install --HEAD libuv

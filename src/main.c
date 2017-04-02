@@ -3,7 +3,7 @@
 #include <string.h>
 #include <libconfig.h>
 #include <zlog.h>
-
+#include <uv.h>
 #include "PoKeysLib.h"
 #include "device/pokey/pokey.h"
 #include "config/config.h"
@@ -59,8 +59,6 @@ int main()
 
     loadConfiguredDevices();
 
-    // dumpDevices();
-
     zlog_info(logHandler, "Starting network device enumeration...");
     int numberOfDevices = PK_EnumerateNetworkDevices(networkDeviceSummary, 800);
 
@@ -86,14 +84,22 @@ int main()
                 device->hasPokey = 1;
                 /** check the name on the pokey and update **/
                 syncDeviceName(device);
-                checkValidPinConfiguration(device,1);
+                checkValidPinConfiguration(device, 1);
+                applyConfiguration(device);
+                startDeviceLoop(device);
                 devices[i] = device;
             }
         }
     }
 
-//    dumpDevices();
+    dumpDevices();
     zlog_fini();
+
+    for (int i = 0; i < numberOfDevices; i++)
+    {
+        PK_DisconnectDevice(devices[i]->pokey);
+        uv_stop(devices[i]->loop);
+    }
 
     return 0;
 }

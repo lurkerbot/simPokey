@@ -2,6 +2,9 @@
 #define __DEVICES_H
 
 #include "../../PoKeysLib.h"
+#include <uv.h>
+
+#define DEVICE_READ_INTERVAL 100
 
 #define MAX_DEVICES 16
 #define MAX_PINS 55
@@ -13,16 +16,20 @@ typedef struct{
     int type;
     int defaultValue;
     int valid;
+    int value;
+    int previousValue;
 } device_port_t;
 
 typedef struct {
     const char* serialNumber;
     const char* name;
+    int uid;
     int hasPokey;
     int dhcp;
     int numberOfPins;
     sPoKeysDevice* pokey;
     device_port_t *pins[MAX_PINS];
+    uv_loop_t* loop;
 } device_t;
 
 device_t *devices[MAX_DEVICES];
@@ -33,6 +40,8 @@ void dumpDevices();
 void dumpDevice(device_t *device);
 int getDeviceBySerialNumber(device_t* device, char *serialNumber);
 int syncDeviceName(device_t *device);
+int applyConfiguration(device_t *device);
+int startDeviceLoop(device_t *device);
 
 
 #endif

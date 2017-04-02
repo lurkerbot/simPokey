@@ -42,109 +42,9 @@ void *getConfigurationValue(char *element)
     return 0;
 }
 
-int checkPinExistsInConfig(device_t *device, int pin)
-{
-    for (int i = 0; i < device->numberOfPins; i++)
-    {
-        if (pin == device->pins[i]->pin)
-        {
-            return PIN_EXISTS;
-        }
-    }
-    return PIN_FREE;
-}
 
-int loadPorts(config_setting_t *configurationDevice, device_t *device)
-{
-    int numberOfPorts;
-    config_setting_t *devicePorts = config_setting_get_member(configurationDevice, "ports");
 
-    if (devicePorts == NULL)
-    {
-        zlog_info(logHandler, " - No ports detected");
-        return 0;
-    }
 
-    numberOfPorts = config_setting_length(devicePorts);
-    int pinIndex = 0;
-
-    for (int i = 0; i < numberOfPorts; i++)
-    {
-
-        int pin, defaultValue = 0, type = 0;
-        int ret;
-        const char *name, *tempType;
-
-        config_setting_t *configurationPort = config_setting_get_elem(devicePorts, i);
-        device_port_t *port = malloc(sizeof(device_port_t));
-        memset(port, 0, sizeof(device_port_t));
-
-        ret = config_setting_lookup_int(configurationPort, "pin", &pin);
-
-        if (ret == CONFIG_FALSE)
-        {
-            zlog_info(logHandler, "No pin configuration. Skipping...");
-            continue;
-        }
-
-        if (checkPinExistsInConfig(device, pin)==PIN_EXISTS)
-        {
-            zlog_info(logHandler, "  - Duplicate pin %d. Skipping", pin);
-            continue;
-        }
-    
-
-        ret = config_setting_lookup_string(configurationPort, "type", &tempType);
-        if (ret == CONFIG_FALSE)
-        {
-            zlog_info(logHandler, "No pin direction specified. Skipping...");
-            continue;
-        }
-
-        ret = config_setting_lookup_string(configurationPort, "name", &name);
-        if (ret == CONFIG_FALSE)
-        {
-            name = "Undefined";
-        }
-
-        config_setting_lookup_int(configurationPort, "default", &defaultValue);
-
-        if (strcmp("DIGITAL_INPUT", (char *)tempType) == 0)
-            type = DIGITAL_INPUT;
-        else if (strcmp("DIGITAL_OUTPUT", (char *)tempType) == 0)
-            type = DIGITAL_OUTPUT;
-        else if (strcmp("ANALOG_INPUT", (char *)tempType) == 0)
-            type = ANALOG_INPUT;
-        else if (strcmp("ENCODER", (char *)tempType) == 0)
-            type = ENCODER;
-        else if (strcmp("FAST_ENCODER", (char *)tempType) == 0)
-            type = FAST_ENCODER;
-        else if (strcmp("UFAST_ENCODER", (char *)tempType) == 0)
-            type = UFAST_ENCODER;
-        else if (strcmp("PWM", (char *)tempType) == 0)
-            type = PWM;
-        else if (strcmp("TRIGGER", (char *)tempType) == 0)
-            type = TRIGGER;
-        else if (strcmp("COUNTER", (char *)tempType) == 0)
-            type = COUNTER;
-        else
-            type = UKNOWN_PIN_TYPE;
-
-        port->name = name;
-        port->pin = pin;
-        port->valid = 0;
-        port->defaultValue = defaultValue;
-        port->type = type;
-
-        device->pins[pinIndex++] = port;
-        device->numberOfPins++;
-                
-    }
-
-    zlog_info(logHandler, " - Loaded %d/%d ports", device->numberOfPins,numberOfPorts);
-
-    return 0;
-}
 
 int loadConfiguredDevices()
 {
@@ -154,7 +54,7 @@ int loadConfiguredDevices()
     for (int i = 0; i < numberOfDevices; i++)
     {
         const char *name, *serialNumber;
-        int dhcp;
+        int dhcp,uid;
 
         device_t *device = malloc(sizeof(device_t));
         config_setting_t *configurationDevice = config_setting_get_elem(configurationDevices, i);
@@ -162,17 +62,20 @@ int loadConfiguredDevices()
         config_setting_lookup_string(configurationDevice, "name", &name);
         config_setting_lookup_string(configurationDevice, "serialNumber", &serialNumber);
         config_setting_lookup_bool(configurationDevice, "dhcp", &dhcp);
+        config_setting_lookup_int(configurationDevice, "uid", &uid);
 
         device->name = malloc(MAX_DEVICE_NAME_LENGTH);
         device->name = name;
         device->serialNumber = serialNumber;
         device->dhcp = dhcp;
+        device->uid = uid;
 
         /* Set defaults */
         device->hasPokey = 0;
 
         zlog_info(logHandler, "%s (#%s)", device->name, device->serialNumber);
-        loadPorts(configurationDevice, device);
+        loadPinConfiguration(config_setting_get_member(configurationDevice, "pins"), device);
+
         devices[i] = device;
     }
 
