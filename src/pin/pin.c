@@ -208,6 +208,10 @@ int loadPinConfiguration(config_setting_t *configuredPorts, device_t *device)
         }
 
         config_setting_lookup_int(configurationPort, "default", &defaultValue);
+         if (ret == CONFIG_FALSE)
+        {
+            defaultValue = 0;
+        }
 
         if (strcmp("DIGITAL_INPUT", (char *)tempType) == 0)
             type = DIGITAL_INPUT;
@@ -304,6 +308,7 @@ int loadPWMConfiguration(config_setting_t *configuredPorts, device_t *device)
         }
 
         ret = config_setting_lookup_int(configurationPort, "dutyCycle", &dutyCycle);
+
         if (ret == CONFIG_FALSE)
         {
             dutyCycle = 100;
@@ -343,7 +348,8 @@ int applyPinConfigurationToDevice(device_t *device)
         if (pin->type == DIGITAL_OUTPUT)
         {
             device->pokey->Pins[pin->pin - 1].PinFunction = PK_PinCap_digitalOutput;
-            device->pokey->Pins[pin->pin - 1].DigitalValueSet = pin->defaultValue;
+            printf("%d\n",pin->defaultValue);
+            device->pokey->Pins[pin->pin - 1].DigitalValueSet = 0;
             continue;
         }
 
@@ -356,7 +362,9 @@ int applyPinConfigurationToDevice(device_t *device)
         if (pin->type == PWM_INPUT)
         {
 
-            uint8_t ch, enabledChannels;
+            uint8_t ch;
+            
+            uint8_t *enabledChannels= malloc(sizeof(uint8_t));
 
             if (pin->pin == 17)
                 ch = 6;
@@ -371,37 +379,22 @@ int applyPinConfigurationToDevice(device_t *device)
             else if (pin->pin == 22)
                 ch = 1;
 
-            // enabledChannels |= 1 << 1;
-            // enabledChannels |= 1 << 2;
-            // enabledChannels |= 1 << 3;
-            // enabledChannels |= 1 << 4;
-            enabledChannels |= 1 << ch;
-            // enabledChannels |= 1 << 6;
+           enabledChannels[(ch-1)]=1;
+            
+            unsigned int *dutyCycle = malloc(6 * sizeof(unsigned int));
 
-            // printf("%d\n", (uint8_t)channel);
-            printf("%d %d\n", ch, pin->pin);
-
-            uint32_t *dutyCycle = malloc(6 * sizeof(uint32_t));
-
-            // dutyCycle[0] = PWM_CLOCK / 2;
-            // dutyCycle[1] = PWM_CLOCK / 2;
-            // dutyCycle[2] = PWM_CLOCK / 2;
-            // dutyCycle[3] = PWM_CLOCK / 2;
-            // dutyCycle[4] = PWM_CLOCK / 2;
-            dutyCycle[ch-1] = PWM_CLOCK / 10;
+            dutyCycle[ch - 1] = (unsigned int)(PWM_CLOCK / pin->dutyCycle);
 
             device->pokey->PWM.PWMperiod = PWM_CLOCK;
-            device->pokey->PWM.PWMenabledChannels = &enabledChannels;
+            device->pokey->PWM.PWMenabledChannels = enabledChannels;
             device->pokey->PWM.PWMduty = dutyCycle;
 
             PK_PWMConfigurationSet(device->pokey);
-            printf("%d\n", (int)device->pokey->PWM.PWMenabledChannels);
 
             continue;
         }
-    }
+            PK_DigitalIOSet(device->pokey);
 
-    PK_DigitalIOSet(device->pokey);
-    int ret = PK_PinConfigurationSet(device->pokey);
-    return ret;
+    }
+    return 0;
 }

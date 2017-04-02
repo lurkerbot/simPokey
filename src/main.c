@@ -4,6 +4,7 @@
 #include <libconfig.h>
 #include <zlog.h>
 #include <uv.h>
+#include <signal.h>
 #include "PoKeysLib.h"
 #include "device/pokey/pokey.h"
 #include "config/config.h"
@@ -31,8 +32,35 @@ int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *p
     return 0;
 }
 
+void intHandler(int sig)
+{
+    char c;
+
+    signal(sig, SIG_IGN);
+    printf("Do you really want to quit? [y/n] ");
+    c = getchar();
+    if (c == 'y' || c == 'Y')
+    {
+        zlog_fini();
+
+        for (int i = 0; i < numberOfDevices; i++)
+        {
+            uv_stop(devices[i]->loop);
+            PK_DisconnectDevice(devices[i]->pokey);      
+            free(devices[i]);
+        }
+
+        exit(0);
+    }
+    else
+        signal(SIGINT, intHandler);
+    getchar(); // Get new line character
+}
+
 int main()
 {
+
+    signal(SIGINT, intHandler);
 
     if (zlog_init(logConfigFile))
     {
@@ -54,13 +82,10 @@ int main()
     config_setting_t configuredDevices;
 
     initConfiguration(&configuration, configFile);
-
-    //*****
-
     loadConfiguredDevices();
 
     zlog_info(logHandler, "Starting network device enumeration...");
-    int numberOfDevices = PK_EnumerateNetworkDevices(networkDeviceSummary, 800);
+    numberOfDevices = PK_EnumerateNetworkDevices(networkDeviceSummary, 800);
 
     zlog_info(logHandler, "Found %d device(s)", numberOfDevices);
 
@@ -84,25 +109,14 @@ int main()
                 device->hasPokey = 1;
                 /** check the name on the pokey and update **/
                 syncDeviceName(device);
-                
+
                 checkValidPinConfiguration(device, i);
-                devices[i] = device;                
+                devices[i] = device;
                 applyConfiguration(device);
                 dumpDevices();
                 startDeviceLoop(device);
-
-                    
-
             }
         }
-    }
-
-    zlog_fini();
-
-    for (int i = 0; i < numberOfDevices; i++)
-    {
-        PK_DisconnectDevice(devices[i]->pokey);
-        uv_stop(devices[i]->loop);
     }
 
     return 0;

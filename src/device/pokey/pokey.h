@@ -5,7 +5,9 @@
 #include <uv.h>
 
 #define DEVICE_READ_INTERVAL 100
-#define PWM_CLOCK 25000000
+// #define PWM_CLOCK 25000000
+#define PWM_CLOCK 12500000
+// #define PWM_CLOCK 500000
 
 #define MAX_DEVICES 16
 #define MAX_PINS 55
@@ -34,6 +36,7 @@ typedef struct {
     uv_loop_t* loop;
 } device_t;
 
+int numberOfDevices;
 device_t *devices[MAX_DEVICES];
 int activeDevices;
 
