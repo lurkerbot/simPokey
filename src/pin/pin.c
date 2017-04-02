@@ -246,7 +246,7 @@ int applyPinConfigurationToDevice(device_t *device)
 
         if (pin->valid == PIN_INVALID)
         {
-            printf("Invalid pin %d...skipping\n", i);
+            zlog_info(logHandler, " - Invalid pin configuration on %d", pin->pin);
             device->pokey->Pins[pin->pin - 1].PinFunction = PK_PinCap_reserved;
             continue;
         }

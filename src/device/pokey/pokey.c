@@ -116,7 +116,7 @@ int applyConfiguration(device_t *device)
     return 0;
 }
 
-void timer_cb1(uv_timer_t *timer, int status)
+void digitalIOTimerCallback(uv_timer_t *timer, int status)
 {
     device_t *device = timer->data;
     sPoKeysDevice *pokey = device->pokey;
@@ -131,8 +131,6 @@ void timer_cb1(uv_timer_t *timer, int status)
         for (int i = 0; i < device->numberOfPins; i++)
         {
             int devicePin = device->pins[i]->pin-1;
-            // printf("%d checking %s %d\n", i,device->pins[i]->name, devicePin);
-
             if(device->pins[i]->type != DIGITAL_INPUT){
                 continue;
             }
@@ -153,15 +151,16 @@ void timer_cb1(uv_timer_t *timer, int status)
 int startDeviceLoop(device_t *device)
 {
 
-    dumpDevice(device);
-    uv_timer_t timer1;
+    uv_timer_t digitalIOTimer;
     uint64_t freq = DEVICE_READ_INTERVAL;
 
     device->loop = uv_loop_new();
-    timer1.data = device;
-    uv_timer_init(device->loop, &timer1);
+    digitalIOTimer.data = device;
+    uv_timer_init(device->loop, &digitalIOTimer);
 
-    int ret = uv_timer_start(&timer1, (uv_timer_cb)&timer_cb1, 100, freq);
+    int ret = uv_timer_start(&digitalIOTimer, (uv_timer_cb)&digitalIOTimerCallback, 100, freq);
+
+    zlog_info(logHandler,"Starting processing....");
 
     if (ret == 0)
         uv_run(device->loop, UV_RUN_DEFAULT);
