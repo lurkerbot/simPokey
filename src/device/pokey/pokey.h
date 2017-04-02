@@ -5,6 +5,7 @@
 #include <uv.h>
 
 #define DEVICE_READ_INTERVAL 100
+#define PWM_CLOCK 25000000
 
 #define MAX_DEVICES 16
 #define MAX_PINS 55
@@ -18,6 +19,7 @@ typedef struct{
     int valid;
     int value;
     int previousValue;
+    int dutyCycle;
 } device_port_t;
 
 typedef struct {

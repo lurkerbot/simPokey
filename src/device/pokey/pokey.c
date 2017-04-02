@@ -112,7 +112,6 @@ int applyConfiguration(device_t *device)
 {
 
     applyPinConfigurationToDevice(device);
-
     return 0;
 }
 

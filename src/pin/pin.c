@@ -24,7 +24,7 @@ char *getPinTypeString(int type)
         return "FENC";
     if (type == UFAST_ENCODER)
         return "UFENC";
-    if (type == PWM)
+    if (type == PWM_INPUT)
         return "PWM";
     if (type == TRIGGER)
         return "TRIGGER";
@@ -70,7 +70,6 @@ int checkValidPinConfiguration(device_t *device, int pin)
     for (int i = 0; i < device->numberOfPins; i++)
     {
         device_port_t *pin = device->pins[i];
-
         char *str = NULL;
         int strLen = asprintf(&str, "- Error: %s (%s) on pin %d", pin->name, getPinTypeString(pin->type), pin->pin);
 
@@ -113,7 +112,7 @@ int checkValidPinConfiguration(device_t *device, int pin)
             else
                 pin->valid = 1;
             break;
-        case PWM:
+        case PWM_INPUT:
             if (PK_CheckPinCapability(device->pokey, pin->pin, PK_AllPinCap_PWMOut) == 0)
                 strcat(str, " - Incorrect type PWM");
             else
@@ -214,10 +213,6 @@ int loadPinConfiguration(config_setting_t *configuredPorts, device_t *device)
             type = DIGITAL_INPUT;
         else if (strcmp("DIGITAL_OUTPUT", (char *)tempType) == 0)
             type = DIGITAL_OUTPUT;
-        else if (strcmp("ANALOG_INPUT", (char *)tempType) == 0)
-            type = ANALOG_INPUT;
-        else if (strcmp("ANALOG_OUTPUT", (char *)tempType) == 0)
-            type = ANALOG_OUTPUT;
         else
             type = UKNOWN_PIN_TYPE;
 
@@ -238,8 +233,102 @@ int loadPinConfiguration(config_setting_t *configuredPorts, device_t *device)
     return 0;
 }
 
+int loadPWMConfiguration(config_setting_t *configuredPorts, device_t *device)
+{
+
+    int numberOfPWMPins;
+    int pin, channel, defaultValue = 0, type = 0, ret, dutyCycle;
+    const char *name, *tempType;
+
+    if (configuredPorts == NULL)
+    {
+        zlog_info(logHandler, " - No pins section configuration");
+        return NO_PINS;
+    }
+
+    numberOfPWMPins = config_setting_length(configuredPorts);
+
+    if (numberOfPWMPins == 0)
+    {
+        zlog_info(logHandler, " - No pins configuration");
+        return NO_PINS;
+    }
+
+    device_port_t *port = malloc(sizeof(device_port_t));
+    memset(port, 0, sizeof(device_port_t));
+
+    zlog_info(logHandler, " - Loading PWM configuration");
+
+    for (int i = 0; i < numberOfPWMPins; i++)
+    {
+        config_setting_t *configurationPort = config_setting_get_elem(configuredPorts, i);
+        device_port_t *port = malloc(sizeof(device_port_t));
+        memset(port, 0, sizeof(device_port_t));
+
+        ret = config_setting_lookup_int(configurationPort, "channel", &channel);
+
+        if (ret == CONFIG_FALSE)
+        {
+            zlog_info(logHandler, "No pin configuration. Skipping...");
+            continue;
+        }
+
+        if (channel == 6)
+            pin = 17;
+        else if (channel == 5)
+            pin = 18;
+        else if (channel == 4)
+            pin = 19;
+        else if (channel == 3)
+            pin = 20;
+        else if (channel == 2)
+            pin = 21;
+        else if (channel == 1)
+            pin = 22;
+        else
+        {
+            zlog_info(logHandler, "  - Invalid PWM pin %d", pin);
+            continue;
+        }
+
+        if (checkPinExistsInConfig(device, pin) == PIN_EXISTS)
+        {
+            zlog_info(logHandler, "  - Duplicate pin %d. Skipping", pin);
+            continue;
+        }
+
+        ret = config_setting_lookup_string(configurationPort, "name", &name);
+        if (ret == CONFIG_FALSE)
+        {
+            name = "Undefined";
+        }
+
+        ret = config_setting_lookup_int(configurationPort, "dutyCycle", &dutyCycle);
+        if (ret == CONFIG_FALSE)
+        {
+            dutyCycle = 100;
+        }
+
+        port->name = name;
+        port->pin = pin;
+        port->valid = 0;
+        port->dutyCycle = dutyCycle;
+        port->type = PWM_INPUT;
+        port->value = 0;
+        port->previousValue = 0;
+
+        device->pins[device->numberOfPins] = port;
+        device->numberOfPins++;
+    }
+
+    zlog_info(logHandler, " - Loaded %d/%d PWM", numberOfPWMPins, device->numberOfPins);
+
+    return 0;
+}
+
 int applyPinConfigurationToDevice(device_t *device)
 {
+
     for (int i = 0; i < device->numberOfPins; i++)
     {
         device_port_t *pin = device->pins[i];
@@ -263,9 +352,56 @@ int applyPinConfigurationToDevice(device_t *device)
             device->pokey->Pins[pin->pin - 1].PinFunction = PK_PinCap_digitalInput;
             continue;
         }
+
+        if (pin->type == PWM_INPUT)
+        {
+
+            uint8_t ch, enabledChannels;
+
+            if (pin->pin == 17)
+                ch = 6;
+            else if (pin->pin == 18)
+                ch = 5;
+            else if (pin->pin == 19)
+                ch = 4;
+            else if (pin->pin == 20)
+                ch = 3;
+            else if (pin->pin == 21)
+                ch = 2;
+            else if (pin->pin == 22)
+                ch = 1;
+
+            // enabledChannels |= 1 << 1;
+            // enabledChannels |= 1 << 2;
+            // enabledChannels |= 1 << 3;
+            // enabledChannels |= 1 << 4;
+            enabledChannels |= 1 << ch;
+            // enabledChannels |= 1 << 6;
+
+            // printf("%d\n", (uint8_t)channel);
+            printf("%d %d\n", ch, pin->pin);
+
+            uint32_t *dutyCycle = malloc(6 * sizeof(uint32_t));
+
+            // dutyCycle[0] = PWM_CLOCK / 2;
+            // dutyCycle[1] = PWM_CLOCK / 2;
+            // dutyCycle[2] = PWM_CLOCK / 2;
+            // dutyCycle[3] = PWM_CLOCK / 2;
+            // dutyCycle[4] = PWM_CLOCK / 2;
+            dutyCycle[ch-1] = PWM_CLOCK / 10;
+
+            device->pokey->PWM.PWMperiod = PWM_CLOCK;
+            device->pokey->PWM.PWMenabledChannels = &enabledChannels;
+            device->pokey->PWM.PWMduty = dutyCycle;
+
+            PK_PWMConfigurationSet(device->pokey);
+            printf("%d\n", (int)device->pokey->PWM.PWMenabledChannels);
+
+            continue;
+        }
     }
 
-PK_DigitalIOSet(device->pokey);
+    PK_DigitalIOSet(device->pokey);
     int ret = PK_PinConfigurationSet(device->pokey);
     return ret;
 }

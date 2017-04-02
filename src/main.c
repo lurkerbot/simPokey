@@ -84,15 +84,19 @@ int main()
                 device->hasPokey = 1;
                 /** check the name on the pokey and update **/
                 syncDeviceName(device);
-                checkValidPinConfiguration(device, 1);
+                
+                checkValidPinConfiguration(device, i);
+                devices[i] = device;                
                 applyConfiguration(device);
+                dumpDevices();
                 startDeviceLoop(device);
-                devices[i] = device;
+
+                    
+
             }
         }
     }
 
-    dumpDevices();
     zlog_fini();
 
     for (int i = 0; i < numberOfDevices; i++)

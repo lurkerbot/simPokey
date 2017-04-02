@@ -42,10 +42,6 @@ void *getConfigurationValue(char *element)
     return 0;
 }
 
-
-
-
-
 int loadConfiguredDevices()
 {
     config_setting_t *configurationDevices = config_lookup(&configuration, "configuration.devices");
@@ -75,6 +71,7 @@ int loadConfiguredDevices()
 
         zlog_info(logHandler, "%s (#%s)", device->name, device->serialNumber);
         loadPinConfiguration(config_setting_get_member(configurationDevice, "pins"), device);
+        loadPWMConfiguration(config_setting_get_member(configurationDevice, "pwm"), device);
 
         devices[i] = device;
     }
