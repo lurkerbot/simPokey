@@ -33,5 +33,3 @@ install: clean all
 	mkdir -p logs
 	touch logs/log
 	brew install --HEAD libuv
-
-$(shell mkdir -p $(OUT))
