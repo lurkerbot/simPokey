@@ -6,6 +6,7 @@
 #include <uv.h>
 #include <signal.h>
 #include "PoKeysLib.h"
+#include "ProSimDataSource.h"
 #include "device/pokey/pokey.h"
 #include "config/config.h"
 #include "pin/pin.h"
@@ -88,6 +89,8 @@ int main()
     numberOfDevices = PK_EnumerateNetworkDevices(networkDeviceSummary, 800);
 
     zlog_info(logHandler, "Found %d device(s)", numberOfDevices);
+
+    initSimConnection("192.168.2.2", 8091);
 
     for (int i = 0; i < numberOfDevices; i++)
     {

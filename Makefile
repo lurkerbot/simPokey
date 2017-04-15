@@ -5,7 +5,8 @@ DEBUG = -g3 -O0
 CFLAGS = -I . $(DEBUG)
 CDFLAGS = -arch x86_64
 
-LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -L/usr/local/include -lconfig -luv -lzlog -lpthread
+LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -L/usr/local/include -Llibs \
+		  -lconfig -luv -lzlog -lpthread -lProSimDataSource
 SOURCES = ./src/main.c \
 		  ./src/config/config.c \
 		  ./src/device/pokey/pokey.c \
@@ -34,3 +35,4 @@ install: clean all
 	mkdir -p logs
 	touch logs/log
 	brew install --HEAD libuv
+	install_name_tool -change libProSimDataSource.so ../libs/libProSimDataSource.so bin/pokey
