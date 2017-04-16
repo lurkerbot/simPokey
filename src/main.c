@@ -50,7 +50,7 @@ void intHandler(int sig)
             PK_DisconnectDevice(devices[i]->pokey);      
             free(devices[i]);
         }
-
+        free(simConfig);
         exit(0);
     }
     else
@@ -82,15 +82,20 @@ int main()
     sPoKeysNetworkDeviceSummary *networkDeviceSummary;
     config_setting_t configuredDevices;
 
+
+   
+
     initConfiguration(&configuration, configFile);
     loadConfiguredDevices();
+    loadSimulatorDetails();
 
     zlog_info(logHandler, "Starting network device enumeration...");
     numberOfDevices = PK_EnumerateNetworkDevices(networkDeviceSummary, 800);
 
     zlog_info(logHandler, "Found %d device(s)", numberOfDevices);
 
-    initSimConnection("192.168.2.2", 8091);
+    initSimConnection(simConfig->ipAddress, simConfig->port);
+    startSimLoop();
 
     for (int i = 0; i < numberOfDevices; i++)
     {

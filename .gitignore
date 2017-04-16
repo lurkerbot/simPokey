@@ -1,8 +1,7 @@
 *.o
 *.a
 logs/*
-bin/pokey
-bin/pokey.dSYM/
 src/libPoKeys.so
 src/libProSimDataSource.so
 .DS_Store
+bin/

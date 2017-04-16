@@ -50,7 +50,7 @@ int loadConfiguredDevices()
     for (int i = 0; i < numberOfDevices; i++)
     {
         const char *name, *serialNumber;
-        int dhcp,uid;
+        int dhcp, uid;
 
         device_t *device = malloc(sizeof(device_t));
         config_setting_t *configurationDevice = config_setting_get_elem(configurationDevices, i);
@@ -80,4 +80,64 @@ int loadConfiguredDevices()
     activeDevices = numberOfDevices;
 
     return 0;
+}
+
+int loadSimulatorDetails()
+{
+    char *simType;
+    char *simIPAddress;
+    int simPort;
+
+    config_setting_t *simulator = config_lookup(&configuration, "configuration.simulator");
+    if (simulator == NULL)
+    {
+        zlog_info(logHandler, "No simulator configuration found");
+        return (EXIT_FAILURE);
+    }
+
+    int rv = config_setting_length(simulator);
+    if (rv == 0)
+    {
+        zlog_info(logHandler, " - Invalid simulator config found");
+        return (EXIT_FAILURE);
+    }
+
+    zlog_info(logHandler, "Loading simulator configuration");
+    config_setting_t *simulatorConfig = config_setting_get_elem(simulator, 0);
+
+    config_setting_lookup_string(simulatorConfig, "type", &simType);
+    if (simType == NULL)
+    {
+        zlog_info(logHandler, " - No simualator type specified");
+        return (EXIT_FAILURE);
+    }
+    zlog_info(logHandler, " - %s set as simulator type", simType);
+   
+   
+    config_setting_lookup_string(simulatorConfig, "ipAddress", &simIPAddress);
+    if (simIPAddress == NULL)
+    {
+        zlog_info(logHandler, " - No simualator IP Address specified");
+        return (EXIT_FAILURE);
+    }
+   
+    config_setting_lookup_int(simulatorConfig, "port", &simPort);
+    if (simPort == NULL)
+    {
+        zlog_info(logHandler, " - No simualator port specified");
+        return (EXIT_FAILURE);
+    }
+    zlog_info(logHandler, " - Simulator configured %s:%d", simIPAddress,simPort);
+
+    simConfig = malloc(sizeof(simulator_t));
+    
+    simConfig->type = malloc(64);
+    simConfig->type = simType;
+
+    simConfig->ipAddress = malloc(16);
+    simConfig->ipAddress = simIPAddress;
+
+    simConfig->port = simPort;
+
+    
 }
