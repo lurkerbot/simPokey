@@ -13,7 +13,7 @@
 
 const char *configFile = "../config/config.cfg";
 const char *logConfigFile = "../config/zlog.conf";
-zlog_category_t *logHandler;
+extern zlog_category_t *logHandler;
 
 int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *pokey)
 {
@@ -81,9 +81,6 @@ int main()
 
     sPoKeysNetworkDeviceSummary *networkDeviceSummary;
     config_setting_t configuredDevices;
-
-
-   
 
     initConfiguration(&configuration, configFile);
     loadConfiguredDevices();

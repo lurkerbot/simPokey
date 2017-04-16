@@ -3,5 +3,6 @@
 logs/*
 src/libPoKeys.so
 src/libProSimDataSource.so
+libs/libProSimDataSource.so
 .DS_Store
 bin/

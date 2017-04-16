@@ -48,6 +48,7 @@ typedef struct simElements
 } simElements;
 
 extern int initSimConnection(char *IPAddress, int port);
+extern void simSetLoggingHandler(zlog_category_t* handler);
 extern void startSimLoop();
 extern void stopSimLoop();
 

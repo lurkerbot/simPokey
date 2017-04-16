@@ -19,9 +19,10 @@ pokey: $(OBJECTS)
 	@mkdir -p $(OUT)
 	$(CC) $(OBJECTS) -o $(OUT)/pokey $(CFLAGS) $(LDFLAGS) $(CDFLAGS)
 	dsymutil $(OUT)/pokey
+	install_name_tool -change libProSimDataSource.so ../libs/libProSimDataSource.so ./bin/pokey
 
 clean:
-	-rm -rf src/pokey.dSYM/
+	-rm -rf bin/pokey.dSYM/
 	-rm -f src/*.o src/*.a src/pokey
 	-rm -f src/encoder/*.o
 	-rm -f src/pin/*.o
@@ -34,6 +35,5 @@ install: clean all
 	mkdir -p logs
 	touch logs/log
 	brew install --HEAD libuv
-	install_name_tool -change libProSimDataSource.so ../libs/libProSimDataSource.so bin/pokey
 	$(shell mkdir -p $(OUT))
 

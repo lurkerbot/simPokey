@@ -88,6 +88,8 @@ int loadSimulatorDetails()
     char *simIPAddress;
     int simPort;
 
+    simSetLoggingHandler(logHandler);
+
     config_setting_t *simulator = config_lookup(&configuration, "configuration.simulator");
     if (simulator == NULL)
     {
@@ -133,10 +135,8 @@ int loadSimulatorDetails()
     
     simConfig->type = malloc(64);
     simConfig->type = simType;
-
     simConfig->ipAddress = malloc(16);
     simConfig->ipAddress = simIPAddress;
-
     simConfig->port = simPort;
 
     

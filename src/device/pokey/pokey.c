@@ -147,6 +147,7 @@ void digitalIOTimerCallback(uv_timer_t *timer, int status)
     }
 }
 
+
 int startDeviceLoop(device_t *device)
 {
 
