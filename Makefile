@@ -5,13 +5,14 @@ CDFLAGS = -arch x86_64
 OUT = bin
 
 LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -L/usr/local/include -Llibs \
-		  -lconfig -luv -lzlog -lpthread -lProSimDataSource
+		  -lconfig -luv -lzlog -lpthread -lProSimDataSource -lcli
 
 SOURCES = ./src/main.c \
 		  ./src/config/config.c \
 		  ./src/device/pokey/pokey.c \
 		  ./src/encoder/encoder.c \
-		  ./src/pin/pin.c
+		  ./src/pin/pin.c \
+		  ./src/cli/cli.c 
 
 OBJECTS = $(SOURCES:.c=.o)
 
@@ -26,6 +27,7 @@ clean:
 	-rm -f src/*.o src/*.a src/pokey
 	-rm -f src/encoder/*.o
 	-rm -f src/pin/*.o
+	-rm -f src/cli/*.o
 	-rm -f src/device/pokey/pokey.o
 	-rm -f src/config/config.o
 

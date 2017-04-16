@@ -1,19 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <libconfig.h>
-#include <zlog.h>
-#include <uv.h>
-#include <signal.h>
-#include "PoKeysLib.h"
-#include "ProSimDataSource.h"
-#include "device/pokey/pokey.h"
-#include "config/config.h"
-#include "pin/pin.h"
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <libconfig.h>
+// #include <zlog.h>
+// #include <uv.h>
+// #include <signal.h>
+// #include "PoKeysLib.h"
+// #include "ProSimDataSource.h"
+// #include "device/pokey/pokey.h"
+// #include "config/config.h"
+// #include "pin/pin.h"
+// #include "cli/cli.h"
+#include "main.h"
 
-const char *configFile = "../config/config.cfg";
-const char *logConfigFile = "../config/zlog.conf";
-extern zlog_category_t *logHandler;
+// zlog_category_t *logHandler;
 
 int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *pokey)
 {
@@ -47,7 +47,7 @@ void intHandler(int sig)
         for (int i = 0; i < numberOfDevices; i++)
         {
             uv_stop(devices[i]->loop);
-            PK_DisconnectDevice(devices[i]->pokey);      
+            PK_DisconnectDevice(devices[i]->pokey);
             free(devices[i]);
         }
         free(simConfig);
@@ -60,7 +60,7 @@ void intHandler(int sig)
 
 int main()
 {
-
+    pthread_t cliThread;
     signal(SIGINT, intHandler);
 
     if (zlog_init(logConfigFile))
@@ -72,7 +72,7 @@ int main()
     logHandler = zlog_get_category("simPokey");
     if (!logHandler)
     {
-        printf("get cat fail\n");
+        printf("get simPokey fail\n");
         zlog_fini();
         return -2;
     }
@@ -92,7 +92,18 @@ int main()
     zlog_info(logHandler, "Found %d device(s)", numberOfDevices);
 
     initSimConnection(simConfig->ipAddress, simConfig->port);
+
+    int x = 0;
+    if (pthread_create(&cliThread, NULL, cliInit, &x))
+    {
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
+    }
+
+   
     startSimLoop();
+
+  
 
     for (int i = 0; i < numberOfDevices; i++)
     {
