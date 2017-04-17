@@ -3,10 +3,13 @@
 //forward decl
 void *logHandler;
 int socketOptionsForCLI;
+int count;
 
 int cmdShowCounters(struct cli_def *cli, const char *command, char *argv[], int argc)
 {
         cli_print(cli, "show counters");
+        // cli_print(cli, "show counters: %d %d", count++, (t_stats*)(myDataSourceStats->elementsProcessed));
+        // printf("%d\n", myDataSourceStats);
         return CLI_OK;
 }
 
@@ -34,6 +37,7 @@ void registerShowCommands()
 void *cliInit()
 {
         signal(SIGCHLD, SIG_IGN);
+       
 
         cli = cli_init();
         cli_set_banner(cli, "simPokey Interface");
@@ -91,5 +95,6 @@ void *cliInit()
                 cli_loop(cli, x);
                 exit(0);
         }
+        cli_done(cli);
         return NULL;
 }

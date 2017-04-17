@@ -1,19 +1,4 @@
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <libconfig.h>
-// #include <zlog.h>
-// #include <uv.h>
-// #include <signal.h>
-// #include "PoKeysLib.h"
-// #include "ProSimDataSource.h"
-// #include "device/pokey/pokey.h"
-// #include "config/config.h"
-// #include "pin/pin.h"
-// #include "cli/cli.h"
 #include "main.h"
-
-// zlog_category_t *logHandler;
 
 int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *pokey)
 {
@@ -101,9 +86,14 @@ int main()
     }
 
    
+   zlog_info(logHandler, "Attaching to IPC shared memory - %d", getDataSourceShmid());
+
+
+
     startSimLoop();
 
-  
+    
+
 
     for (int i = 0; i < numberOfDevices; i++)
     {

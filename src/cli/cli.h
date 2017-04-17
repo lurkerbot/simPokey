@@ -6,6 +6,8 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 #include <signal.h>
 #include <strings.h>
 #include <string.h>
@@ -13,13 +15,17 @@
 #include <unistd.h>
 #include <zlog.h>
 #include "libcli.h"
+#include "../libProSimDataSource.h"
+
 
 #define CLITEST_PORT                8000
+
 
 struct cli_command *c;
 struct cli_def *cli;
 int s, x;
 struct sockaddr_in addr;
+
 
 
 
