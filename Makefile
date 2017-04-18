@@ -37,5 +37,6 @@ install: clean all
 	mkdir -p logs
 	touch logs/log
 	brew install --HEAD libuv
+	brew install libcli
 	$(shell mkdir -p $(OUT))
 

@@ -6,3 +6,4 @@ src/libProSimDataSource.so
 libs/libProSimDataSource.so
 .DS_Store
 bin/
+src/pokey.dwarf
