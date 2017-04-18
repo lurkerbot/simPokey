@@ -1,0 +1,106 @@
+#!/usr/bin/env node
+
+var color = require('cli-color');
+var program = require('commander');
+var http = require('http');
+var parseString = require('xml2js').parseString;
+var ProgressBar = require('progress');
+var fs = require('fs');
+
+var xmlContent = "";
+
+var elements = [];
+
+var processIdTable = function (idTable, cb) {
+    var numberOfElements = idTable[0].id.length;
+    var bar = new ProgressBar('Processing [:bar] :current/:total :percent :elapseds :etas remaining', { total: numberOfElements, width: 50, complete: '=' });
+    console.log(color.yellow(`Processing ${numberOfElements} elements`))
+
+    for (var i = 0; i < numberOfElements; i++) {
+        var el = idTable[0].id[i]["$"];
+        var element = {
+            name: el.name
+        }
+        if (el["type"])
+            element.type = el["type"];
+
+        if (el["configName"])
+            element.configName = el["configName"];
+
+        if (idTable[0].id[i]["state"])
+            element.state = idTable[0].id[i]["state"];
+
+
+
+        elements.push(element);
+        bar.tick();
+
+    }
+
+    cb(elements)
+}
+
+var createGitMarkdownOutput = function (elements, cb) {
+    var output = "| Name | Description | Type | Options |\n"
+    output += "|------|:------------|:-----|:--------|\n";
+
+    elements.map(function (el) {
+        output += `|${el.name}| ${el.configName || ''} | ${el.type || ''} | ${el.state || ''}|\n`
+    })
+
+
+    fs.writeFile(program.file, output, function (err) {
+        if (err) {
+            return console.log(err);
+        }
+
+        console.log("The file was saved!");
+    });
+    cb;
+
+}
+
+var parseXML = function (xml) {
+    parseString(xml, function (err, result) {
+        if (err) {
+            console.log(color.red(`Error -  ${err}`))
+            process.exit();
+        }
+        processIdTable(result.root.answer[0].idTable, function (elements) {
+            if (program.output == "mdt") {
+                console.log(color.yellow("Creating Git Markdown table output"));
+                createGitMarkdownOutput(elements, function () {
+                    console.log(done);
+                });
+            }
+        });
+
+    });
+}
+
+program
+    .version("1.0.0")
+    .usage('[options]')
+    .option('-o, --output [mdt]', 'Output format', 'mdt')
+    .option('-f, --file [name]', 'Output file <idTable>', 'idTable.txt')
+    .option('-h, --host [simHost]', 'Simulator hostname or IP Address <127.0.0.1>', '127.0.0.1')
+    .option('-p, --port [port]', 'Simulator ProSim-ar xml Port <8080>', "8080")
+    .parse(process.argv);
+
+console.log(color.green(`Fetching from ${program.host}:${program.port}`))
+
+http.get({
+    host: program.host,
+    port: program.port,
+    path: '/xml?query=ids'
+}, function (response) {
+    response.on('data', function (chunk) {
+        xmlContent += chunk;
+    });
+
+    response.on('end', function () {
+        console.log(color.yellow(`XML recieved ${(xmlContent.length / 1024).toFixed(2)}Kb`))
+        parseXML(xmlContent);
+    })
+
+})
