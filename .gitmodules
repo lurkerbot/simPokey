@@ -1,3 +1,3 @@
 [submodule "submodules/prosim-datasource"]
 	path = submodules/prosim-datasource
-	url = git@github.com:mteichtahl/proSimDataSource.git
+	url = https://github.com/mteichtahl/proSimDataSource.git
