@@ -1,6 +1,5 @@
-title: simPokey
+title: simHub
 description: A near-time time data management hub for flight simulators
 show_downloads: true
 google_analytics:
 theme: 
-source: _site/
