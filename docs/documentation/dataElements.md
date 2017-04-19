@@ -1,3 +1,17 @@
+---
+layout: noHeaderDefault
+---
+
+[back](./)
+
+# ProSim Data Elements
+
+The following table is a list of the ProSim data elements at the simulator *sends* to a TCP client
+
+This is table is extracted from the ProSim AR XML interface. This is available on port 8080 of the ProSim Systems server. For example
+
+    http://192.168.2.2:8080/xml?query=ids
+
 | id | Name | Description | Type | Options | Data Type |
 |----|------|:------------|:-----|:--------|------|
 | 0|A_ASP_ADF_1_VOLUME| ASP ADF 1 vol volume | ANALOG | |char|

@@ -41,22 +41,36 @@ var processIdTable = function (idTable, cb) {
 }
 
 var createGitMarkdownOutput = function (elements, cb) {
-    var output = "| Name | Description | Type | Options |\n"
-    output += "|------|:------------|:-----|:--------|\n";
+    var output = "| id | Name | Description | Type | Options | Data Type |\n"
+    output +=    "|----|------|:------------|:-----|:--------|------|\n";
 
+    var index=0;
     elements.map(function (el) {
-        output += `|${el.name}| ${el.configName || ''} | ${el.type || ''} | ${el.state || ''}|\n`
+        var type ="";
+        if (el.type =="ANALOG")
+            type = "char"
+        if (el.type =="GATE" || el.type=="INDICATOR")
+            type="bool"
+        if (el.type=="ENCODER")
+            type="signed int"
+        if (el.type=="GAUGE")
+            type="float"            
+        if (el.type=="NUMERICAL")
+            type="int"            
+        if (el.type=="SWITCH")
+            type="char*"            
+
+
+        output += `| ${index++}|${el.name}| ${el.configName || ''} | ${el.type || ''} | ${el.state || ''}|${type}|\n`
+
     })
 
 
     fs.writeFile(program.file, output, function (err) {
-        if (err) {
-            return console.log(err);
-        }
-
-        console.log("The file was saved!");
+       
+        cb(err,program.file);
     });
-    cb;
+
 
 }
 
@@ -69,8 +83,12 @@ var parseXML = function (xml) {
         processIdTable(result.root.answer[0].idTable, function (elements) {
             if (program.output == "mdt") {
                 console.log(color.yellow("Creating Git Markdown table output"));
-                createGitMarkdownOutput(elements, function () {
-                    console.log(done);
+                createGitMarkdownOutput(elements, function (err,data) {
+                     if (err) {
+                        console.log(color.red(`Error: ${err}`));
+                    } else {
+                    console.log(color.green("Wrote file to " + program.file));
+                    }
                 });
             }
         });
