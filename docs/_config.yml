@@ -1,1 +1,5 @@
-theme: jekyll-theme-cayman
+title: simPokey
+description: A near-time time data management hub for flight simulators
+show_downloads: true
+google_analytics:
+theme: 
