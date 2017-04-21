@@ -159,7 +159,7 @@ int startDeviceLoop(device_t *device)
     digitalIOTimer.data = device;
     uv_timer_init(device->loop, &digitalIOTimer);
 
-    int ret = uv_timer_start(&digitalIOTimer, (uv_timer_cb)&digitalIOTimerCallback, 100, freq);
+    int ret = uv_timer_start(&digitalIOTimer, (uv_timer_cb)&digitalIOTimerCallback, DEVICE_START_DELAY, freq);
 
     zlog_info(logHandler,"Starting processing....");
 

@@ -5,6 +5,7 @@
 #include <uv.h>
 
 #define DEVICE_READ_INTERVAL 100
+#define DEVICE_START_DELAY 100
 // #define PWM_CLOCK 25000000
 #define PWM_CLOCK 12500000
 // #define PWM_CLOCK 500000
