@@ -348,7 +348,6 @@ int applyPinConfigurationToDevice(device_t *device)
         if (pin->type == DIGITAL_OUTPUT)
         {
             device->pokey->Pins[pin->pin - 1].PinFunction = PK_PinCap_digitalOutput;
-            printf("%d\n",pin->defaultValue);
             device->pokey->Pins[pin->pin - 1].DigitalValueSet = 0;
             continue;
         }

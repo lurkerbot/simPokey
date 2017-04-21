@@ -95,10 +95,11 @@ void dumpDevices()
 
 int getDeviceBySerialNumber(device_t *device, char *serialNumber)
 {
-    for (int i = 0; i < activeDevices; i++)
+    for (int i = 0; i < numberOfDevices ; i++)
     {
-        device_t *searchDevice = devices[i];
 
+        device_t *searchDevice = devices[i];
+            
         if (strcmp(serialNumber, searchDevice->serialNumber) == 0)
         {
             memcpy(device, searchDevice, sizeof(device_t));

@@ -78,23 +78,13 @@ int main()
 
     initSimConnection(simConfig->ipAddress, simConfig->port);
 
-    int x = 0;
-    if (pthread_create(&cliThread, NULL, cliInit, &x))
-    {
-        fprintf(stderr, "Error creating thread\n");
-        return 1;
-    }
-
+    // int x = 0;
+    // if (pthread_create(&cliThread, NULL, cliInit, &x))
+    // {
+    //     fprintf(stderr, "Error creating thread\n");
+    //     return 1;
+    // }
    
-   zlog_info(logHandler, "Attaching to IPC shared memory - %d", getDataSourceShmid());
-
-
-
-    startSimLoop();
-
-    
-
-
     for (int i = 0; i < numberOfDevices; i++)
     {
 
@@ -124,6 +114,7 @@ int main()
             }
         }
     }
+    startSimLoop();
 
     return 0;
 }
