@@ -126,7 +126,8 @@ typings/
 
 # dotenv environment variables file
 .env
-libs/libProSimDataSource.so
+
+src/libs/libProSimDataSource.so
 logs/
 
 
