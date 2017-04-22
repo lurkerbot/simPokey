@@ -46,6 +46,7 @@ void intHandler(int sig)
 int main()
 {
     pthread_t cliThread;
+    
     signal(SIGINT, intHandler);
 
     if (zlog_init(logConfigFile))
@@ -78,12 +79,12 @@ int main()
 
     initSimConnection(simConfig->ipAddress, simConfig->port);
 
-    // int x = 0;
-    // if (pthread_create(&cliThread, NULL, cliInit, &x))
-    // {
-    //     fprintf(stderr, "Error creating thread\n");
-    //     return 1;
-    // }
+    int x = 0;
+    if (pthread_create(&cliThread, NULL, cliInit, &x))
+    {
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
+    }
    
     for (int i = 0; i < numberOfDevices; i++)
     {
@@ -110,7 +111,12 @@ int main()
                 devices[i] = device;
                 applyConfiguration(device);
                 dumpDevices();
-                startDeviceLoop(device);
+
+                // start a thread per device
+                int y;
+                if (pthread_create(&device->pThread, NULL, startDeviceLoop, &y)){
+                    printf("could not start startDeviceLoop thread");
+                };
             }
         }
     }

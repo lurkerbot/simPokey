@@ -11,6 +11,15 @@
 //forward decl
 void *logHandler;
 
+int findPinMappingByName(char* name) {
+    zlog_info(logHandler, "Finding pin mapping");
+
+    for (int i = 0; i < activeDevices; i++)
+    {
+        
+    }
+}
+
 int syncDeviceName(device_t *device)
 {
     if (strncmp((char *)device->pokey->DeviceData.DeviceName, device->name, MAX_DEVICE_NAME_LENGTH) != 0)
@@ -70,13 +79,13 @@ void dumpDevice(device_t *device)
         // }
     }
 
-    printf("%9s %16.16s %9s %9s %9s \n", "index", "name", "pin", "type", "default");
-    printf("%9s %16.16s %9s %9s %9s \n", "-----", "----", "---", "----", "-------");
+    printf("%9s %25.25s %9s %9s %9s \n", "index", "name", "pin", "type", "default");
+    printf("%9s %25.25s %9s %9s %9s \n", "-----", "----", "---", "----", "-------");
 
     for (int y = 0; y < device->numberOfPins; y++)
     {
         device_port_t *port = device->pins[y];
-        printf("%9i %16.16s %9d %9s %9d \n", y, port->name,
+        printf("%9i %25.25s %9d %9s %9d \n", y, port->name,
                port->pin,
                (char *)getPinTypeString(port->type),
                port->defaultValue);
@@ -161,10 +170,9 @@ int startDeviceLoop(device_t *device)
 
     int ret = uv_timer_start(&digitalIOTimer, (uv_timer_cb)&digitalIOTimerCallback, DEVICE_START_DELAY, freq);
 
-    zlog_info(logHandler,"Starting processing....");
-
-    if (ret == 0)
+    if (ret == 0) {
         uv_run(device->loop, UV_RUN_DEFAULT);
+    }
 
     return 1;
 }

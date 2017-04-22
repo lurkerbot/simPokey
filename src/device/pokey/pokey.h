@@ -35,6 +35,8 @@ typedef struct {
     sPoKeysDevice* pokey;
     device_port_t *pins[MAX_PINS];
     uv_loop_t* loop;
+    pthread_t pThread;
+
 } device_t;
 
 int numberOfDevices;
@@ -48,6 +50,7 @@ int getDeviceBySerialNumber(device_t* device, char *serialNumber);
 int syncDeviceName(device_t *device);
 int applyConfiguration(device_t *device);
 int startDeviceLoop(device_t *device);
+int findPinMappingByName(char* name);
 
 
 #endif
