@@ -1,5 +1,7 @@
 #include "main.h"
 
+extern void startSimLoop();
+
 int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *pokey)
 {
     zlog_info(logHandler, " - Connecting to device %d", networkDevice->SerialNumber);
@@ -43,6 +45,12 @@ void intHandler(int sig)
     getchar(); // Get new line character
 }
 
+
+void* poo(void* data) {
+    printf("<------ HERE I AM ----->\n");
+    return NULL;
+}
+
 int main()
 {
     pthread_t cliThread;
@@ -77,7 +85,7 @@ int main()
 
     zlog_info(logHandler, "Found %d device(s)", numberOfDevices);
 
-    initSimConnection(simConfig->ipAddress, simConfig->port);
+    initSimConnection(simConfig->ipAddress, simConfig->port, &poo) ;
 
     int x = 0;
     if (pthread_create(&cliThread, NULL, cliInit, &x))
