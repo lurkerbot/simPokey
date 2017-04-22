@@ -1,11 +1,13 @@
-CC = gcc 
+CC = gcc
+CXX = g++ 
 DEBUG = -g3 -O0 
-CFLAGS = -I . $(DEBUG)
+CFLAGS = -I. $(DEBUG) -stdlib=libc++
+CXXFLAGS = -stdlib=libc++ -std=c++14
 CDFLAGS = -arch x86_64
 OUT = bin
 
 LDFLAGS = -lPoKeys -L./src -lusb-1.0 -L/usr/lib/ -L/usr/local/include -Llibs \
-		  -lconfig -luv -lzlog -lpthread -lProSimDataSource -lcli
+		  -lconfig -luv -lzlog -lpthread -lProSimDataSource -lcli -stdlib=libc++ -lc++
 
 SOURCES = ./src/main.c \
 		  ./src/config/config.c \
@@ -13,11 +15,13 @@ SOURCES = ./src/main.c \
 		  ./src/encoder/encoder.c \
 		  ./src/pin/pin.c \
 		  ./src/cli/cli.c 
+CXXSOURCES = $(wildcard src/*.cpp)
 
-OBJECTS = $(SOURCES:.c=.o)
+OBJECTS = $(SOURCES:.c=.o) $(CXXSOURCES:.cpp=.o)
 
-pokey: $(OBJECTS)
+pokey: $(OBJECTS) 	 
 	@mkdir -p $(OUT)
+	$(CXX) $(CXXSOURCES) -o $(OUT)/pokey $(CXXFLAGS) $(LDFLAGS) $(CDFLAGS)
 	$(CC) $(OBJECTS) -o $(OUT)/pokey $(CFLAGS) $(LDFLAGS) $(CDFLAGS)
 	dsymutil $(OUT)/pokey
 	install_name_tool -change libProSimDataSource.so ../libs/libProSimDataSource.so ./bin/pokey
