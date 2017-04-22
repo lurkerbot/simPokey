@@ -46,6 +46,7 @@ void intHandler(int sig)
 int main()
 {
     pthread_t cliThread;
+    
     signal(SIGINT, intHandler);
 
     if (zlog_init(logConfigFile))
@@ -110,7 +111,12 @@ int main()
                 devices[i] = device;
                 applyConfiguration(device);
                 dumpDevices();
-                startDeviceLoop(device);
+
+                // start a thread per device
+                int y;
+                if (pthread_create(&device->pThread, NULL, startDeviceLoop, &y)){
+                    printf("could not start startDeviceLoop thread");
+                };
             }
         }
     }
