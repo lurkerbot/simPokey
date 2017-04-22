@@ -17,18 +17,13 @@
 #include "libcli.h"
 #include "../libProSimDataSource.h"
 
-
 #define CLITEST_PORT                8000
-
 
 struct cli_command *c;
 struct cli_def *cli;
 int s, x;
 struct sockaddr_in addr;
 
-
-
-
-void* cliInit();
+void *cliInit(void *data);
 
 #endif

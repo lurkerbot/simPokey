@@ -34,11 +34,10 @@ void registerShowCommands()
         cli_register_command(cli, showCommand, "element", cmdShowElement, PRIVILEGE_UNPRIVILEGED, MODE_EXEC, "Show an specific element");
 }
 
-void *cliInit()
+void *cliInit(void *data)
 {
         signal(SIGCHLD, SIG_IGN);
        
-
         cli = cli_init();
         cli_set_banner(cli, "simPokey Interface");
 
@@ -50,7 +49,7 @@ void *cliInit()
         if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         {
                 perror("socket");
-                return NULL;
+                pthread_exit(0);
         }
         setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &socketOptionsForCLI, sizeof(socketOptionsForCLI));
 
@@ -61,13 +60,13 @@ void *cliInit()
         if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0)
         {
                 perror("bind");
-                return NULL;
+                pthread_exit(0);
         }
 
         if (listen(s, 50) < 0)
         {
                 perror("listen");
-                return 1;
+                pthread_exit(0);
         }
 
         zlog_info(logHandler, "CLI Listening on port %d", CLITEST_PORT);
@@ -77,7 +76,7 @@ void *cliInit()
                 if (pid < 0)
                 {
                         zlog_info(logHandler, "fork");
-                        return 1;
+                        pthread_exit(0);
                 }
 
                 /* parent */
@@ -95,6 +94,7 @@ void *cliInit()
                 cli_loop(cli, x);
                 exit(0);
         }
+
         cli_done(cli);
-        return NULL;
+        pthread_exit(0);
 }
