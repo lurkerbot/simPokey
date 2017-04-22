@@ -78,12 +78,12 @@ int main()
 
     initSimConnection(simConfig->ipAddress, simConfig->port);
 
-    // int x = 0;
-    // if (pthread_create(&cliThread, NULL, cliInit, &x))
-    // {
-    //     fprintf(stderr, "Error creating thread\n");
-    //     return 1;
-    // }
+    int x = 0;
+    if (pthread_create(&cliThread, NULL, cliInit, &x))
+    {
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
+    }
    
     for (int i = 0; i < numberOfDevices; i++)
     {
