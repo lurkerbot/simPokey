@@ -1,6 +1,5 @@
+#include "libProSimDataSource.h"
 #include "main.h"
-
-extern void startSimLoop();
 
 int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *pokey)
 {
@@ -22,7 +21,7 @@ int connectToDevice(sPoKeysNetworkDeviceSummary *networkDevice, sPoKeysDevice *p
 
 void intHandler(int sig)
 {
-    char c;
+    char c = '\0';
 
     signal(sig, SIG_IGN);
     printf("Do you really want to quit? [y/n] ");
@@ -53,10 +52,9 @@ void* poo(void* data) {
 
 int main()
 {
-    pthread_t cliThread;
+    pthread_t cliThread = NULL;
     
     signal(SIGINT, intHandler);
-
     if (zlog_init(logConfigFile))
     {
         printf("zlog init failed\n");
@@ -85,7 +83,7 @@ int main()
 
     zlog_info(logHandler, "Found %d device(s)", numberOfDevices);
 
-    initSimConnection(simConfig->ipAddress, simConfig->port, &poo) ;
+    init_sim_connection(simConfig->ipAddress, simConfig->port, &poo) ;
 
     int x = 0;
     if (pthread_create(&cliThread, NULL, cliInit, &x))
@@ -96,7 +94,6 @@ int main()
    
     for (int i = 0; i < numberOfDevices; i++)
     {
-
         device_t *device = malloc(sizeof(device_t));
         char serialNumberString[128];
 
@@ -128,7 +125,8 @@ int main()
             }
         }
     }
-    startSimLoop();
+    
+    start_sim_loop();
 
     return 0;
 }

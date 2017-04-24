@@ -3,11 +3,14 @@
 #include <libconfig.h>
 #include <zlog.h>
 #include <string.h>
+
+#include "libProSimDataSource.h"
+
 #include "config.h"
 #include "../device/pokey/pokey.h"
 #include "../pin/pin.h"
 
-//forward decl
+// forward decl
 void *logHandler;
 
 int configIsLoaded = 0;
@@ -88,7 +91,7 @@ int loadSimulatorDetails()
     char *simIPAddress;
     int simPort;
 
-    simSetLoggingHandler(logHandler);
+    sim_set_logging_handler(logHandler);
 
     config_setting_t *simulator = config_lookup(&configuration, "configuration.simulator");
     if (simulator == NULL)

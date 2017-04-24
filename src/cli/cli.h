@@ -17,6 +17,10 @@
 #include "libcli.h"
 #include "../libProSimDataSource.h"
 
+#ifdef __cplusplus
+extern “C” {
+#endif
+
 #define CLITEST_PORT                8000
 
 struct cli_command *c;
@@ -25,5 +29,9 @@ int s, x;
 struct sockaddr_in addr;
 
 void *cliInit(void *data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

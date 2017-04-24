@@ -3,7 +3,9 @@
 
 #include <libconfig.h>
 
-
+#ifdef __cplusplus
+extern “C” {
+#endif
 
 typedef struct {
     const char* type;
@@ -18,5 +20,9 @@ int initConfiguration(config_t *config, const char *fileName);
 void* getConfigurationValue(char* element);
 int loadConfiguredDevices();
 int loadSimulatorDetails();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

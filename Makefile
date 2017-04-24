@@ -1,7 +1,7 @@
 CC = gcc
 CXX = g++ 
 DEBUG = -g3 -O0 
-CFLAGS = -I. $(DEBUG) -stdlib=libc++
+CFLAGS = -I. -I./src $(DEBUG) -stdlib=libc++
 CXXFLAGS = -stdlib=libc++ -std=c++14
 CDFLAGS = -arch x86_64
 OUT = bin
@@ -15,6 +15,7 @@ SOURCES = ./src/main.c \
 		  ./src/encoder/encoder.c \
 		  ./src/pin/pin.c \
 		  ./src/cli/cli.c 
+
 CXXSOURCES = $(wildcard src/*.cpp)
 
 OBJECTS = $(SOURCES:.c=.o) $(CXXSOURCES:.cpp=.o)

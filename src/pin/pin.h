@@ -1,6 +1,10 @@
 #ifndef __PIN_H
 #define __PIN_H
 
+#ifdef __cplusplus
+extern “C” {
+#endif
+
 #include "../PoKeysLib.h"
 #include "../device/pokey/pokey.h"
 
@@ -31,5 +35,9 @@ int loadPinConfiguration(config_setting_t* configuredPorts,device_t *device);
 int loadPWMConfiguration(config_setting_t *configuredPorts, device_t *device);
 int checkPinExistsInConfig(device_t *device, int pin);
 int applyPinConfigurationToDevice(device_t *device);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -8,7 +8,7 @@ int count;
 int cmdShowCounters(struct cli_def *cli, const char *command, char *argv[], int argc)
 {
         cli_print(cli, "show counters");
-        // cli_print(cli, "show counters: %d %d", count++, (t_stats*)(myDataSourceStats->elementsProcessed));
+        // cli_print(cli, "show counters: %d %d", count++, (datasource_stats_t*)(myDataSourceStats->elementsProcessed));
         // printf("%d\n", myDataSourceStats);
         return CLI_OK;
 }

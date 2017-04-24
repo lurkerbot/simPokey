@@ -4,6 +4,10 @@
 #include "../../PoKeysLib.h"
 #include <uv.h>
 
+#ifdef __cplusplus
+extern “C” {
+#endif
+
 #define DEVICE_READ_INTERVAL 100
 #define DEVICE_START_DELAY 100
 // #define PWM_CLOCK 25000000
@@ -52,5 +56,9 @@ int applyConfiguration(device_t *device);
 int startDeviceLoop(device_t *device);
 int findPinMappingByName(char* name);
 
+#ifdef __cplusplus
+extern “C” {
+}
+#endif
 
 #endif
